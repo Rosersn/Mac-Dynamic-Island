@@ -42,6 +42,7 @@ public enum NotchState {
 
 public enum NotchViews {
     case home
+    case muse
     case shelf
     case timer
     case stats
@@ -111,6 +112,37 @@ enum WindowHeightMode: String, Defaults.Serializable {
     case matchMenuBar = "Match menubar height"
     case matchRealNotchSize = "Match real notch height"
     case custom = "Custom height"
+}
+
+enum MuseFloatingPanelDefaultPosition: String, CaseIterable, Defaults.Serializable, Identifiable {
+    case topLeft
+    case topRight
+    case centerLeft
+    case center
+    case centerRight
+    case bottomLeft
+    case bottomRight
+
+    var id: String { rawValue }
+
+    var localizedName: String {
+        switch self {
+        case .topLeft:
+            return String(localized: "Top Left")
+        case .topRight:
+            return String(localized: "Top Right")
+        case .centerLeft:
+            return String(localized: "Center Left")
+        case .center:
+            return String(localized: "Center")
+        case .centerRight:
+            return String(localized: "Center Right")
+        case .bottomLeft:
+            return String(localized: "Bottom Left")
+        case .bottomRight:
+            return String(localized: "Bottom Right")
+        }
+    }
 }
 
 enum SliderColorEnum: String, CaseIterable, Defaults.Serializable {

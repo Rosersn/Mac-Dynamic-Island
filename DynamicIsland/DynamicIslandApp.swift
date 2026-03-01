@@ -300,6 +300,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // Use a consistent height for different view types
         if coordinator.currentView == .timer {
             baseSize.height = 250 // Extra space for timer presets
+        } else if coordinator.currentView == .muse {
+            baseSize.height = max(baseSize.height, musePreferredNotchHeight)
         } else if coordinator.currentView == .notes || coordinator.currentView == .clipboard {
             let preferredHeight = coordinator.notesLayoutState.preferredHeight
             baseSize.height = max(baseSize.height, preferredHeight)
@@ -428,6 +430,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self?.debouncedUpdateWindowSize()
         }.store(in: &cancellables)
 
+        Defaults.publisher(.museNotchHeight, options: []).sink { [weak self] _ in
+            self?.debouncedUpdateWindowSize()
+        }.store(in: &cancellables)
+
         MemoryUsageMonitor.shared.startMonitoring()
 
         ReminderLiveActivityManager.shared.$activeWindowReminders
@@ -471,7 +477,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }.store(in: &cancellables)
 
-        Defaults.publisher(.enableScreenAssistant, options: []).sink { [weak self] _ in
+        Defaults.publisher(.enableMuse, options: []).sink { [weak self] _ in
             Task { @MainActor [weak self] in
                 self?.updateFeatureShortcutAvailability()
             }
@@ -609,6 +615,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
         KeyboardShortcuts.isEnabled = Defaults[.enableShortcuts]
         registerOptionalShortcutHandlers()
+        MuseHotkeyManager.shared.startMonitoring()
         updateFeatureShortcutAvailability()
 
         if !Defaults[.showOnAllDisplays] {
@@ -692,23 +699,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             ColorPickerPanelManager.shared.toggleColorPickerPanel()
         }
 
-        KeyboardShortcuts.onKeyDown(for: .screenAssistantPanel) { [weak self] in
-            guard let self else { return }
-            guard Defaults[.enableShortcuts], Defaults[.enableScreenAssistant] else { return }
-
-            switch Defaults[.screenAssistantDisplayMode] {
-            case .panel:
-                ScreenAssistantPanelManager.shared.toggleScreenAssistantPanel()
-            case .popover:
-                if vm.notchState == .closed {
-                    vm.open()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        NotificationCenter.default.post(name: NSNotification.Name("ToggleScreenAssistantPopover"), object: nil)
-                    }
-                } else {
-                    NotificationCenter.default.post(name: NSNotification.Name("ToggleScreenAssistantPopover"), object: nil)
-                }
-            }
+        KeyboardShortcuts.onKeyDown(for: .musePanel) {
+            guard Defaults[.enableShortcuts], Defaults[.enableMuse] else { return }
+            MuseFloatingPanelManager.shared.togglePanel()
         }
     }
 
@@ -717,7 +710,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         updateShortcut(.startDemoTimer, isEnabled: Defaults[.enableShortcuts] && Defaults[.enableTimerFeature])
         updateShortcut(.clipboardHistoryPanel, isEnabled: Defaults[.enableShortcuts] && Defaults[.enableClipboardManager])
         updateShortcut(.colorPickerPanel, isEnabled: Defaults[.enableShortcuts] && Defaults[.enableColorPickerFeature])
-        updateShortcut(.screenAssistantPanel, isEnabled: Defaults[.enableShortcuts] && Defaults[.enableScreenAssistant])
+        updateShortcut(.musePanel, isEnabled: Defaults[.enableShortcuts] && Defaults[.enableMuse])
     }
 
     @MainActor

@@ -278,25 +278,6 @@ enum ClipboardDisplayMode: String, CaseIterable, Codable, Defaults.Serializable 
     }
 }
 
-enum ScreenAssistantDisplayMode: String, CaseIterable, Codable, Defaults.Serializable {
-    case popover = "popover"     // Traditional popover attached to button
-    case panel = "panel"         // Floating panel near notch
-    
-    var displayName: String {
-        switch self {
-        case .popover: return String(localized: "Popover")
-        case .panel: return String(localized: "Panel")
-        }
-    }
-    
-    var description: String {
-        switch self {
-        case .popover: return String(localized: "Shows screen assistant as a dropdown attached to the AI button")
-        case .panel: return String(localized: "Shows screen assistant in a floating panel near the notch")
-        }
-    }
-}
-
 enum ColorPickerDisplayMode: String, CaseIterable, Codable, Defaults.Serializable {
     case popover = "popover"     // Traditional popover attached to button
     case panel = "panel"         // Floating panel near notch
@@ -517,76 +498,150 @@ enum ReminderPresentationStyle: String, CaseIterable, Identifiable, Defaults.Ser
     }
 }
 
-// AI Model types for screen assistant
+// AI Model provider and model definitions for Muse.
 enum AIModelProvider: String, CaseIterable, Identifiable, Defaults.Serializable {
     case gemini = "Gemini"
-    case openai = "OpenAI GPT"
+    case openai = "OpenAI"
     case claude = "Claude"
-    case local = "Local Model"
-    
+    case deepseek = "DeepSeek"
+    case local = "Ollama (Local)"
+    case customOpenAI = "Custom OpenAI Compatible"
+
     var id: String { self.rawValue }
-    
-    var displayName: String {
-        return self.rawValue
-    }
-    
-    var description: String {
-        switch self {
-        case .gemini: return "Google's Gemini AI with multimodal capabilities"
-        case .openai: return "OpenAI's GPT models with advanced reasoning"
-        case .claude: return "Anthropic's Claude with strong analytical skills"
-        case .local: return "Local AI model (Ollama or similar)"
+
+    var displayName: String { self.rawValue }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        switch rawValue {
+        case "OpenAI GPT":
+            self = .openai
+        case "Local Model":
+            self = .local
+        default:
+            self = AIModelProvider(rawValue: rawValue) ?? .gemini
         }
     }
-    
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+
+    var description: String {
+        switch self {
+        case .gemini:
+            return String(localized: "Google Gemini models with multimodal capabilities")
+        case .openai:
+            return String(localized: "OpenAI models including GPT and o-series reasoning models")
+        case .claude:
+            return String(localized: "Anthropic Claude models with strong writing and analysis")
+        case .deepseek:
+            return String(localized: "DeepSeek reasoning and chat models")
+        case .local:
+            return String(localized: "Run local models through Ollama")
+        case .customOpenAI:
+            return String(localized: "OpenAI-compatible endpoint (GLM, Kimi, SiliconFlow, Groq, etc.)")
+        }
+    }
+
     var supportedModels: [AIModel] {
         switch self {
         case .gemini:
             return [
-                // Gemini 2.5 Models (Latest)
-                AIModel(id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", supportsThinking: true),
-                AIModel(id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", supportsThinking: true),
-                AIModel(id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", supportsThinking: false),
-                AIModel(id: "gemini-2.5-flash-live", name: "Gemini 2.5 Flash Live", supportsThinking: false),
-                AIModel(id: "gemini-2.5-flash-native-audio", name: "Gemini 2.5 Flash Native Audio", supportsThinking: true),
-                
-                // Gemini 2.0 Models
-                AIModel(id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", supportsThinking: false),
-                AIModel(id: "gemini-2.0-flash-lite", name: "Gemini 2.0 Flash-Lite", supportsThinking: false),
-                AIModel(id: "gemini-2.0-flash-live", name: "Gemini 2.0 Flash Live", supportsThinking: false),
-                
-                // Legacy 1.5 Models (for compatibility)
-                AIModel(id: "gemini-1.5-pro", name: "Gemini 1.5 Pro", supportsThinking: false),
-                AIModel(id: "gemini-1.5-flash", name: "Gemini 1.5 Flash", supportsThinking: false)
+                AIModel(id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", supportsThinking: true, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", supportsThinking: true, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "gemini-2.5-flash-lite", name: "Gemini 2.5 Flash-Lite", supportsThinking: false, supportsMultimodal: true, supportsToolCalling: false),
+                AIModel(id: "gemini-2.0-flash", name: "Gemini 2.0 Flash", supportsThinking: false, supportsMultimodal: true, supportsToolCalling: true)
             ]
         case .openai:
             return [
-                AIModel(id: "gpt-4o", name: "GPT-4o", supportsThinking: false),
-                AIModel(id: "gpt-4o-mini", name: "GPT-4o Mini", supportsThinking: false),
-                AIModel(id: "o1-preview", name: "o1 Preview", supportsThinking: true),
-                AIModel(id: "o1-mini", name: "o1 Mini", supportsThinking: true)
+                AIModel(id: "gpt-4.1", name: "GPT-4.1", supportsThinking: false, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "gpt-4.1-mini", name: "GPT-4.1 mini", supportsThinking: false, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "gpt-4o", name: "GPT-4o", supportsThinking: false, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "o3", name: "o3", supportsThinking: true, supportsMultimodal: false, supportsToolCalling: true),
+                AIModel(id: "o3-mini", name: "o3-mini", supportsThinking: true, supportsMultimodal: false, supportsToolCalling: true),
+                AIModel(id: "o4-mini", name: "o4-mini", supportsThinking: true, supportsMultimodal: false, supportsToolCalling: true)
             ]
         case .claude:
             return [
-                AIModel(id: "claude-3-5-sonnet", name: "Claude 3.5 Sonnet", supportsThinking: false),
-                AIModel(id: "claude-3-haiku", name: "Claude 3 Haiku", supportsThinking: false)
+                AIModel(id: "claude-sonnet-4-0", name: "Claude 4 Sonnet", supportsThinking: true, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "claude-3-7-sonnet-latest", name: "Claude 3.7 Sonnet", supportsThinking: true, supportsMultimodal: true, supportsToolCalling: true),
+                AIModel(id: "claude-3-5-haiku-latest", name: "Claude 3.5 Haiku", supportsThinking: false, supportsMultimodal: true, supportsToolCalling: true)
+            ]
+        case .deepseek:
+            return [
+                AIModel(id: "deepseek-reasoner", name: "DeepSeek-R1", supportsThinking: true, supportsMultimodal: false, supportsToolCalling: true),
+                AIModel(id: "deepseek-chat", name: "DeepSeek-V3 Chat", supportsThinking: false, supportsMultimodal: false, supportsToolCalling: true),
+                AIModel(id: "deepseek-v3", name: "DeepSeek-V3", supportsThinking: false, supportsMultimodal: false, supportsToolCalling: true)
             ]
         case .local:
             return [
-                AIModel(id: "llama3.2", name: "Llama 3.2", supportsThinking: false),
-                AIModel(id: "qwen2.5", name: "Qwen 2.5", supportsThinking: false)
+                AIModel(id: "llama3.2", name: "Llama 3.2", supportsThinking: false, supportsMultimodal: false, supportsToolCalling: true),
+                AIModel(id: "qwen2.5", name: "Qwen 2.5", supportsThinking: false, supportsMultimodal: false, supportsToolCalling: true)
+            ]
+        case .customOpenAI:
+            return [
+                AIModel(
+                    id: Defaults[.customOpenAIModel].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        ? "custom-model"
+                        : Defaults[.customOpenAIModel],
+                    name: Defaults[.customOpenAIModel].trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        ? "Custom Model"
+                        : Defaults[.customOpenAIModel],
+                    supportsThinking: true,
+                    supportsMultimodal: true,
+                    supportsToolCalling: true
+                )
             ]
         }
     }
 }
 
-struct AIModel: Codable, Identifiable, Defaults.Serializable {
+struct AIModel: Codable, Identifiable, Defaults.Serializable, Hashable {
     let id: String
     let name: String
     let supportsThinking: Bool
-    
+    let supportsMultimodal: Bool
+    let supportsToolCalling: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case supportsThinking
+        case supportsMultimodal
+        case supportsToolCalling
+    }
+
+    init(
+        id: String,
+        name: String,
+        supportsThinking: Bool,
+        supportsMultimodal: Bool = false,
+        supportsToolCalling: Bool = false
+    ) {
+        self.id = id
+        self.name = name
+        self.supportsThinking = supportsThinking
+        self.supportsMultimodal = supportsMultimodal
+        self.supportsToolCalling = supportsToolCalling
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
+        supportsThinking = try container.decodeIfPresent(Bool.self, forKey: .supportsThinking) ?? false
+        supportsMultimodal = try container.decodeIfPresent(Bool.self, forKey: .supportsMultimodal) ?? false
+        supportsToolCalling = try container.decodeIfPresent(Bool.self, forKey: .supportsToolCalling) ?? false
+    }
+
     var displayName: String {
-        return name + (supportsThinking ? " (Thinking)" : "")
+        if supportsThinking {
+            return "\(name) (Thinking)"
+        }
+        return name
     }
 }
 
@@ -923,12 +978,31 @@ extension Defaults.Keys {
     static let showClipboardIcon = Key<Bool>("showClipboardIcon", default: true)
     static let clipboardDisplayMode = Key<ClipboardDisplayMode>("clipboardDisplayMode", default: .panel)
     
-    // MARK: Screen Assistant Feature
-    static let enableScreenAssistant = Key<Bool>("enableScreenAssistant", default: true)
-    static let screenAssistantDisplayMode = Key<ScreenAssistantDisplayMode>("screenAssistantDisplayMode", default: .panel)
+    // MARK: Muse Feature
+    static let enableMuse = Key<Bool>("enableMuse", default: true)
+    static let museNotchHeight = Key<CGFloat>("museNotchHeight", default: 620)
+    static let enableDoubleOptionForMuse = Key<Bool>("enableDoubleOptionForMuse", default: true)
+    static let museDoubleOptionInterval = Key<Double>("museDoubleOptionInterval", default: 0.4)
+    static let museFloatingPanelWidth = Key<CGFloat>("museFloatingPanelWidth", default: 420)
+    static let museFloatingPanelCompactHeight = Key<CGFloat>("museFloatingPanelCompactHeight", default: 96)
+    static let museFloatingPanelExpandedHeight = Key<CGFloat>("museFloatingPanelExpandedHeight", default: 520)
+    static let museFloatingPanelDefaultPosition = Key<MuseFloatingPanelDefaultPosition>("museFloatingPanelDefaultPosition", default: .bottomRight)
+    static let museFloatingPanelRememberLastPosition = Key<Bool>("museFloatingPanelRememberLastPosition", default: true)
+    static let museFloatingPanelEdgeInset = Key<CGFloat>("museFloatingPanelEdgeInset", default: 24)
+    static let museSystemPrompt = Key<String>("museSystemPrompt", default: "")
+    static let museQuickPrompts = Key<[String]>("museQuickPrompts", default: [
+        String(localized: "Help me write an email"),
+        String(localized: "Explain a concept"),
+        String(localized: "Analyze this screenshot"),
+        String(localized: "Plan my day")
+    ])
     static let geminiApiKey = Key<String>("geminiApiKey", default: "")
     static let openaiApiKey = Key<String>("openaiApiKey", default: "")
     static let claudeApiKey = Key<String>("claudeApiKey", default: "")
+    static let deepseekApiKey = Key<String>("deepseekApiKey", default: "")
+    static let customOpenAIApiKey = Key<String>("customOpenAIApiKey", default: "")
+    static let customOpenAIEndpoint = Key<String>("customOpenAIEndpoint", default: "")
+    static let customOpenAIModel = Key<String>("customOpenAIModel", default: "custom-model")
     static let selectedAIProvider = Key<AIModelProvider>("selectedAIProvider", default: .gemini)
     static let selectedAIModel = Key<AIModel?>("selectedAIModel", default: nil)
     static let enableThinkingMode = Key<Bool>("enableThinkingMode", default: false)

@@ -77,6 +77,7 @@ struct ContentView: View {
     @Default(.showStandardMediaControls) var showStandardMediaControls
     @Default(.enableLyrics) var enableLyrics
     @Default(.showClosedLyricsDuringTimer) var showClosedLyricsDuringTimer
+    @Default(.museNotchHeight) private var museNotchHeight
     
     // Dynamic sizing based on view type and graph count with smooth transitions
     var dynamicNotchSize: CGSize {
@@ -84,6 +85,14 @@ struct ContentView: View {
         
         if coordinator.currentView == .timer {
             return CGSize(width: baseSize.width, height: 250) // Extra height for timer presets
+        }
+
+        if coordinator.currentView == .muse {
+            let museTargetHeight = min(max(museNotchHeight, 260), 900)
+            return CGSize(
+                width: baseSize.width,
+                height: max(baseSize.height, museTargetHeight)
+            )
         }
         
         if coordinator.currentView == .notes || coordinator.currentView == .clipboard {
@@ -267,7 +276,8 @@ struct ContentView: View {
                             handleHover(hovering)
                         }
                         .onTapGesture {
-                            if vm.notchState == .closed && Defaults[.enableHaptics] {
+                            guard vm.notchState == .closed else { return }
+                            if Defaults[.enableHaptics] {
                                 triggerHapticIfAllowed()
                             }
                             openNotch()
@@ -720,6 +730,14 @@ struct ContentView: View {
                           switch coordinator.currentView {
                               case .home:
                                   NotchHomeView(albumArtNamespace: albumArtNamespace)
+                              case .muse:
+                                  NotchMuseView()
+                                      .frame(
+                                          maxWidth: .infinity,
+                                          minHeight: museTabMinimumContentHeight,
+                                          maxHeight: .infinity,
+                                          alignment: .top
+                                      )
                               case .shelf:
                                   NotchShelfView()
                               case .timer:
@@ -755,6 +773,12 @@ struct ContentView: View {
             return .red
         }
         return Color(nsColor: reminder.event.calendar.color).ensureMinimumBrightness(factor: 0.7)
+    }
+
+    private var museTabMinimumContentHeight: CGFloat {
+        let headerHeight = max(24, vm.effectiveClosedNotchHeight)
+        let museTargetHeight = min(max(museNotchHeight, 260), 900)
+        return max(160, museTargetHeight - headerHeight)
     }
 
     private func reminderSneakPeekText(for entry: ReminderLiveActivityManager.ReminderEntry, now: Date) -> String {
@@ -1521,6 +1545,7 @@ struct ContentView: View {
 
     // MARK: - Private Methods
     private func openNotch() {
+        guard vm.notchState == .closed else { return }
         withAnimation(.bouncy.speed(1.2)) {
             vm.open()
         }

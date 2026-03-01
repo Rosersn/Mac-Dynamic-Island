@@ -354,6 +354,16 @@ class DynamicIslandViewModel: NSObject, ObservableObject {
         let baseSize = Defaults[.enableMinimalisticUI] ? minimalisticOpenNotchSize : openNotchSize
         var adjustedSize = baseSize
 
+        if coordinator.currentView == .timer {
+            adjustedSize.height = max(adjustedSize.height, 250)
+            return adjustedSize
+        }
+
+        if coordinator.currentView == .muse {
+            adjustedSize.height = max(adjustedSize.height, musePreferredNotchHeight)
+            return adjustedSize
+        }
+
         if coordinator.currentView == .notes || coordinator.currentView == .clipboard {
             let preferred = coordinator.notesLayoutState.preferredHeight
             adjustedSize.height = max(adjustedSize.height, preferred)
@@ -397,9 +407,17 @@ class DynamicIslandViewModel: NSObject, ObservableObject {
 
     func closeHello() {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) { [weak self] in
-            self?.coordinator.firstLaunch = false
-            withAnimation(self?.animationLibrary.animation) {
-                self?.close()
+            guard let self else { return }
+            guard self.coordinator.firstLaunch else { return }
+
+            self.coordinator.firstLaunch = false
+
+            guard self.notchState == .open, self.coordinator.currentView == .home else {
+                return
+            }
+
+            withAnimation(self.animationLibrary.animation) {
+                self.close()
             }
         }
     }

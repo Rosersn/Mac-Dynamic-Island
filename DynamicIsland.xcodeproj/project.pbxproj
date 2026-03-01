@@ -9,6 +9,12 @@
 /* Begin PBXBuildFile section */
 		7E1ADF1D2EA209B1001DA867 /* SkyLightWindow in Frameworks */ = {isa = PBXBuildFile; productRef = 7E61181E2E24071E0050006C /* SkyLightWindow */; };
 		7E288D122F1659EF0020C117 /* AtollExtensionKit in Frameworks */ = {isa = PBXBuildFile; productRef = 7E288D112F1659EF0020C117 /* AtollExtensionKit */; };
+		A1B2C3D42FFF000100000001 /* SwiftAISDK in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3E12FFF000100000001 /* SwiftAISDK */; };
+		A1B2C3D52FFF000100000002 /* OpenAIProvider in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3E22FFF000100000002 /* OpenAIProvider */; };
+		A1B2C3D62FFF000100000003 /* AnthropicProvider in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3E32FFF000100000003 /* AnthropicProvider */; };
+		A1B2C3D72FFF000100000004 /* GoogleProvider in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3E42FFF000100000004 /* GoogleProvider */; };
+		A1B2C3D82FFF000100000005 /* DeepSeekProvider in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3E52FFF000100000005 /* DeepSeekProvider */; };
+		A1B2C3D92FFF000100000006 /* OpenAICompatibleProvider in Frameworks */ = {isa = PBXBuildFile; productRef = A1B2C3E62FFF000100000006 /* OpenAICompatibleProvider */; };
 		7E6118142E24071E0050006C /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 14D032192C68F32E0096E6A1 /* LaunchAtLogin */; };
 		7E6118152E24071E0050006C /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 14D0321C2C68F3350096E6A1 /* Sparkle */; };
 		7E6118162E24071E0050006C /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = B18654382C6F4990000B926A /* KeyboardShortcuts */; };
@@ -61,6 +67,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D42FFF000100000001 /* SwiftAISDK in Frameworks */,
+				A1B2C3D52FFF000100000002 /* OpenAIProvider in Frameworks */,
+				A1B2C3D62FFF000100000003 /* AnthropicProvider in Frameworks */,
+				A1B2C3D72FFF000100000004 /* GoogleProvider in Frameworks */,
+				A1B2C3D82FFF000100000005 /* DeepSeekProvider in Frameworks */,
+				A1B2C3D92FFF000100000006 /* OpenAICompatibleProvider in Frameworks */,
 				7E1ADF1D2EA209B1001DA867 /* SkyLightWindow in Frameworks */,
 				7EE1D73F2E6B1E1200997219 /* IOKit.framework in Frameworks */,
 				7EE1D73D2E6B1E0B00997219 /* ApplicationServices.framework in Frameworks */,
@@ -171,6 +183,12 @@
 				146BC4362D366E9B0047C66A /* MacroVisionKit */,
 				7E61181E2E24071E0050006C /* SkyLightWindow */,
 				7E288D112F1659EF0020C117 /* AtollExtensionKit */,
+				A1B2C3E12FFF000100000001 /* SwiftAISDK */,
+				A1B2C3E22FFF000100000002 /* OpenAIProvider */,
+				A1B2C3E32FFF000100000003 /* AnthropicProvider */,
+				A1B2C3E42FFF000100000004 /* GoogleProvider */,
+				A1B2C3E52FFF000100000005 /* DeepSeekProvider */,
+				A1B2C3E62FFF000100000006 /* OpenAICompatibleProvider */,
 			);
 			productName = DynamicIsland;
 			productReference = F54406E72CD4987A00C7AFD9 /* Atoll.app */;
@@ -216,6 +234,7 @@
 				7E61181F2E24071E0050006C /* XCRemoteSwiftPackageReference "SkyLightWindow" */,
 				7E09D5962EB7B497005AF41D /* XCRemoteSwiftPackageReference "open-meteo" */,
 				7E288D102F1659EF0020C117 /* XCRemoteSwiftPackageReference "AtollExtensionKit" */,
+				A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F54406E82CD4987A00C7AFD9 /* Products */;
@@ -629,6 +648,14 @@
 				kind = branch;
 			};
 		};
+		A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/teunlao/swift-ai-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.17.0;
+			};
+		};
 		F54407082CD4A23F00C7AFD9 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections.git";
@@ -689,6 +716,36 @@
 			isa = XCSwiftPackageProductDependency;
 			package = B19424072CD0DB52003E5DC2 /* XCRemoteSwiftPackageReference "LottieUI" */;
 			productName = LottieUI;
+		};
+		A1B2C3E12FFF000100000001 /* SwiftAISDK */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = SwiftAISDK;
+		};
+		A1B2C3E22FFF000100000002 /* OpenAIProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = OpenAIProvider;
+		};
+		A1B2C3E32FFF000100000003 /* AnthropicProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = AnthropicProvider;
+		};
+		A1B2C3E42FFF000100000004 /* GoogleProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = GoogleProvider;
+		};
+		A1B2C3E52FFF000100000005 /* DeepSeekProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = DeepSeekProvider;
+		};
+		A1B2C3E62FFF000100000006 /* OpenAICompatibleProvider */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A1B2C3F12FFF000100000001 /* XCRemoteSwiftPackageReference "swift-ai-sdk" */;
+			productName = OpenAICompatibleProvider;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -49,6 +49,7 @@ struct TabSelectionView: View {
     @Default(.enableTimerFeature) var enableTimerFeature
     @Default(.enableStatsFeature) var enableStatsFeature
     @Default(.enableColorPickerFeature) var enableColorPickerFeature
+    @Default(.enableMuse) var enableMuse
     @Default(.timerDisplayMode) var timerDisplayMode
     @Default(.enableThirdPartyExtensions) private var enableThirdPartyExtensions
     @Default(.enableExtensionNotchExperiences) private var enableExtensionNotchExperiences
@@ -69,6 +70,10 @@ struct TabSelectionView: View {
 
         if homeTabVisible {
             tabsArray.append(TabModel(label: "Home", icon: "house.fill", view: .home))
+        }
+
+        if enableMuse {
+            tabsArray.append(TabModel(label: "Muse", icon: "sailboat.fill", view: .muse))
         }
 
         if Defaults[.dynamicShelf] {

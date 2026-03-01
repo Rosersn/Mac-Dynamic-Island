@@ -36,7 +36,7 @@ struct ProfileSelectionView: View {
             id: "developer",
             name: String(localized: "Developer"),
             icon: "terminal.fill",
-            description: String(localized: "Code and debug with color picker, stats monitoring, and screen assistant."),
+            description: String(localized: "Code and debug with color picker, stats monitoring, and Muse."),
             gradient: [Color.blue, Color.purple]
         ),
         UserProfile(
@@ -210,7 +210,7 @@ func applyProfileSettings(_ profiles: Set<String>) {
         Defaults[.enableColorPickerFeature] = true
         Defaults[.enableStatsFeature] = true
         Defaults[.enableTimerFeature] = true
-        Defaults[.enableScreenAssistant] = true
+        Defaults[.enableMuse] = true
         Defaults[.showMirror] = false
         Defaults[.enableMinimalisticUI] = false
     }
@@ -225,7 +225,7 @@ func applyProfileSettings(_ profiles: Set<String>) {
         Defaults[.enableStatsFeature] = false
         Defaults[.enableTimerFeature] = false
         Defaults[.enableMinimalisticUI] = false
-        Defaults[.enableScreenAssistant] = false
+        Defaults[.enableMuse] = false
     }
     
     // Light Use Profile Settings
@@ -237,7 +237,7 @@ func applyProfileSettings(_ profiles: Set<String>) {
         Defaults[.enableStatsFeature] = false
         Defaults[.enableTimerFeature] = true
         Defaults[.inlineHUD] = true
-        Defaults[.enableScreenAssistant] = false
+        Defaults[.enableMuse] = false
         Defaults[.enableLyrics] = false
     }
     
@@ -250,7 +250,7 @@ func applyProfileSettings(_ profiles: Set<String>) {
         Defaults[.showMirror] = false
         Defaults[.enableStatsFeature] = false
         Defaults[.enableMinimalisticUI] = false
-        Defaults[.enableScreenAssistant] = false
+        Defaults[.enableMuse] = false
     }
     
     // If Light Use is NOT selected but others are, ensure minimalistic is OFF
@@ -262,7 +262,7 @@ func applyProfileSettings(_ profiles: Set<String>) {
     Defaults[.menubarIcon] = true
     Defaults[.enableHaptics] = true
     
-    print("✅ Applied profile settings for: \(profiles.joined(separator: ", "))")
+    print("Applied profile settings for: \(profiles.joined(separator: ", "))")
 }
 
 #Preview {

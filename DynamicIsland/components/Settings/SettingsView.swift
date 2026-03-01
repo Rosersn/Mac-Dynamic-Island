@@ -39,7 +39,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
     case battery
     case stats
     case clipboard
-    case screenAssistant
+    case muse
     case colorPicker
     case downloads
     case shelf
@@ -64,7 +64,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .battery: return "Battery"
         case .stats: return "Stats"
         case .clipboard: return "Clipboard"
-        case .screenAssistant: return "Screen Assistant"
+        case .muse: return "Muse"
         case .colorPicker: return "Color Picker"
         case .downloads: return "Downloads"
         case .shelf: return "Shelf"
@@ -89,7 +89,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .battery: return "battery.100.bolt"
         case .stats: return "chart.xyaxis.line"
         case .clipboard: return "clipboard"
-        case .screenAssistant: return "brain.head.profile"
+        case .muse: return "sailboat.fill"
         case .colorPicker: return "eyedropper"
         case .downloads: return "square.and.arrow.down"
         case .shelf: return "books.vertical"
@@ -114,7 +114,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .battery: return Color(red: 0.202, green: 0.783, blue: 0.348, opacity: 1.000)
         case .stats: return .teal
         case .clipboard: return .mint
-        case .screenAssistant: return .pink
+        case .muse: return .cyan
         case .colorPicker: return .accentColor
         case .downloads: return .gray
         case .shelf: return .brown
@@ -424,7 +424,7 @@ struct SettingsView: View {
             .stats,
             .notes,
             .clipboard,
-            .screenAssistant,
+            .muse,
             .colorPicker,
             .downloads,
             .shelf,
@@ -777,9 +777,9 @@ struct SettingsView: View {
             SettingsSearchEntry(tab: .clipboard, title: "Display Mode", keywords: ["list", "grid", "clipboard"], highlightID: SettingsTab.clipboard.highlightID(for: "Display Mode")),
             SettingsSearchEntry(tab: .clipboard, title: "History Size", keywords: ["history", "clipboard"], highlightID: SettingsTab.clipboard.highlightID(for: "History Size")),
 
-            // Screen Assistant
-            SettingsSearchEntry(tab: .screenAssistant, title: "Enable Screen Assistant", keywords: ["screen assistant", "ai"], highlightID: SettingsTab.screenAssistant.highlightID(for: "Enable Screen Assistant")),
-            SettingsSearchEntry(tab: .screenAssistant, title: "Display Mode", keywords: ["screen assistant", "mode"], highlightID: SettingsTab.screenAssistant.highlightID(for: "Display Mode")),
+            // Muse
+            SettingsSearchEntry(tab: .muse, title: "Enable Muse", keywords: ["muse", "ai", "assistant"], highlightID: SettingsTab.muse.highlightID(for: "Enable Muse")),
+            SettingsSearchEntry(tab: .muse, title: "Model", keywords: ["muse", "model"], highlightID: SettingsTab.muse.highlightID(for: "Model")),
 
             // Color Picker
             SettingsSearchEntry(tab: .colorPicker, title: "Enable Color Picker", keywords: ["color picker", "eyedropper"], highlightID: SettingsTab.colorPicker.highlightID(for: "Enable Color Picker")),
@@ -792,7 +792,7 @@ struct SettingsView: View {
 
     private func isTabVisible(_ tab: SettingsTab) -> Bool {
         switch tab {
-        case .timer, .stats, .clipboard, .screenAssistant, .colorPicker, .shelf, .notes:
+        case .timer, .stats, .clipboard, .muse, .colorPicker, .shelf, .notes:
             return !enableMinimalisticUI
         default:
             return true
@@ -854,9 +854,9 @@ struct SettingsView: View {
             SettingsForm(tab: .clipboard) {
                 ClipboardSettings()
             }
-        case .screenAssistant:
-            SettingsForm(tab: .screenAssistant) {
-                ScreenAssistantSettings()
+        case .muse:
+            SettingsForm(tab: .muse) {
+                MuseSettings()
             }
         case .colorPicker:
             SettingsForm(tab: .colorPicker) {
@@ -5138,10 +5138,10 @@ struct Shortcuts: View {
                 Section {
                     HStack {
                         VStack(alignment: .leading) {
-                            KeyboardShortcuts.Recorder("Screen Assistant:", name: .screenAssistantPanel)
-                                .disabled(!enableShortcuts || !Defaults[.enableScreenAssistant])
-                            if !Defaults[.enableScreenAssistant] {
-                                Text("Screen Assistant feature is disabled")
+                            KeyboardShortcuts.Recorder("Muse Panel:", name: .musePanel)
+                                .disabled(!enableShortcuts || !Defaults[.enableMuse])
+                            if !Defaults[.enableMuse] {
+                                Text("Muse feature is disabled")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .padding(.top, 2)
@@ -5150,9 +5150,9 @@ struct Shortcuts: View {
                         Spacer()
                     }
                 } header: {
-                    Text("AI Assistant")
+                    Text("Muse")
                 } footer: {
-                    Text("Opens the AI assistant panel for file analysis and conversation. Default is Cmd+Shift+A. Only works when screen assistant feature is enabled.")
+                    Text("Opens the floating Muse panel. Default is Option+Space. You can also enable double Option in Muse settings.")
                         .multilineTextAlignment(.trailing)
                         .foregroundStyle(.secondary)
                         .font(.caption)
@@ -6261,178 +6261,302 @@ struct ClipboardSettings: View {
     }
 }
 
-struct ScreenAssistantSettings: View {
-    @ObservedObject var screenAssistantManager = ScreenAssistantManager.shared
-    @Default(.enableScreenAssistant) var enableScreenAssistant
-    @Default(.screenAssistantDisplayMode) var screenAssistantDisplayMode
-    @Default(.geminiApiKey) var geminiApiKey
-    @State private var apiKeyText = ""
-    @State private var showingApiKey = false
-    
+struct MuseSettings: View {
+    @ObservedObject private var museManager = MuseManager.shared
+
+    @Default(.enableMuse) private var enableMuse
+    @Default(.selectedAIProvider) private var selectedProvider
+    @Default(.selectedAIModel) private var selectedModel
+    @Default(.enableThinkingMode) private var enableThinkingMode
+    @Default(.museNotchHeight) private var museNotchHeight
+    @Default(.enableDoubleOptionForMuse) private var enableDoubleOptionForMuse
+    @Default(.museDoubleOptionInterval) private var museDoubleOptionInterval
+    @Default(.museFloatingPanelWidth) private var museFloatingPanelWidth
+    @Default(.museFloatingPanelCompactHeight) private var museFloatingPanelCompactHeight
+    @Default(.museFloatingPanelExpandedHeight) private var museFloatingPanelExpandedHeight
+    @Default(.museFloatingPanelDefaultPosition) private var museFloatingPanelDefaultPosition
+    @Default(.museFloatingPanelRememberLastPosition) private var museFloatingPanelRememberLastPosition
+    @Default(.museFloatingPanelEdgeInset) private var museFloatingPanelEdgeInset
+    @Default(.museSystemPrompt) private var museSystemPrompt
+    @Default(.museQuickPrompts) private var museQuickPrompts
+
+    @Default(.geminiApiKey) private var geminiApiKey
+    @Default(.openaiApiKey) private var openaiApiKey
+    @Default(.claudeApiKey) private var claudeApiKey
+    @Default(.deepseekApiKey) private var deepseekApiKey
+    @Default(.localModelEndpoint) private var localModelEndpoint
+    @Default(.customOpenAIApiKey) private var customOpenAIApiKey
+    @Default(.customOpenAIEndpoint) private var customOpenAIEndpoint
+    @Default(.customOpenAIModel) private var customOpenAIModel
+
+    @State private var newQuickPrompt = ""
+
     private func highlightID(_ title: String) -> String {
-        SettingsTab.screenAssistant.highlightID(for: title)
+        SettingsTab.muse.highlightID(for: title)
     }
-    
+
     var body: some View {
         Form {
             Section {
-                Defaults.Toggle("Enable Screen Assistant", key: .enableScreenAssistant)
-                    .settingsHighlight(id: highlightID("Enable Screen Assistant"))
+                Defaults.Toggle("Enable Muse", key: .enableMuse)
+                    .settingsHighlight(id: highlightID("Enable Muse"))
             } header: {
-                Text("AI Assistant")
+                Text("Muse")
             } footer: {
-                Text("AI-powered assistant that can analyze files, images, and provide conversational help. Use Cmd+Shift+A to quickly access the assistant.")
+                Text("Muse is your intelligent companion, flowing intuitively from the notch to a floating vista, making every AI interaction effortless and inspiring.")
             }
-            
-            if enableScreenAssistant {
-                Section {
-                    HStack {
-                        Text("Gemini API Key")
-                        Spacer()
-                        if geminiApiKey.isEmpty {
-                            Text("Not Set")
-                                .foregroundColor(.red)
-                        } else {
-                            Text("••••••••")
-                                .foregroundColor(.green)
-                        }
-                        
-                        Button(showingApiKey ? "Hide" : (geminiApiKey.isEmpty ? "Set" : "Change")) {
-                            if showingApiKey {
-                                showingApiKey = false
-                                if !apiKeyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                                    Defaults[.geminiApiKey] = apiKeyText
-                                }
-                                apiKeyText = ""
-                            } else {
-                                showingApiKey = true
-                                apiKeyText = geminiApiKey
-                            }
-                        }
-                    }
-                    
-                    if showingApiKey {
-                        VStack(alignment: .leading, spacing: 8) {
-                            SecureField("Enter your Gemini API Key", text: $apiKeyText)
-                                .textFieldStyle(.roundedBorder)
-                            
-                            Text("Get your free API key from Google AI Studio")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                            
-                            HStack {
-                                Button("Open Google AI Studio") {
-                                    NSWorkspace.shared.open(URL(string: "https://aistudio.google.com/app/apikey")!)
-                                }
-                                .buttonStyle(.link)
-                                
-                                Spacer()
-                                
-                                Button("Save") {
-                                    Defaults[.geminiApiKey] = apiKeyText
-                                    showingApiKey = false
-                                    apiKeyText = ""
-                                }
-                                .disabled(apiKeyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                            }
-                        }
-                    }
-                    
-                    HStack {
-                        Text("Display Mode")
-                        Spacer()
-                        Picker("Display Mode", selection: $screenAssistantDisplayMode) {
-                            ForEach(ScreenAssistantDisplayMode.allCases, id: \.self) { mode in
-                                Text(mode.displayName).tag(mode)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .frame(width: 100)
-                    }
-                    .settingsHighlight(id: highlightID("Display Mode"))
-                    
-                    HStack {
-                        Text("Attached Files")
-                        Spacer()
-                        Text("\(screenAssistantManager.attachedFiles.count)")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    HStack {
-                        Text("Recording Status")
-                        Spacer()
-                        Text(screenAssistantManager.isRecording ? "Recording" : "Ready")
-                            .foregroundColor(screenAssistantManager.isRecording ? .red : .secondary)
-                    }
-                } header: {
-                    Text("Configuration")
-                } footer: {
-                    switch screenAssistantDisplayMode {
-                    case .popover:
-                        Text("Popover mode shows the assistant as a dropdown attached to the AI button. Panel mode shows the assistant in a floating window near the notch.")
-                    case .panel:
-                        Text("Panel mode shows the assistant in a floating window near the notch. Popover mode shows the assistant as a dropdown attached to the AI button.")
-                    }
-                }
-                
-                Section {
-                    Button("Clear All Files") {
-                        screenAssistantManager.clearAllFiles()
-                    }
-                    .foregroundColor(.red)
-                    .disabled(screenAssistantManager.attachedFiles.isEmpty)
-                } header: {
-                    Text("Actions")
-                } footer: {
-                    Text("Clear all files removes all attached files and audio recordings. This action is permanent.")
-                }
-                
-                if !screenAssistantManager.attachedFiles.isEmpty {
-                    Section {
-                        ForEach(screenAssistantManager.attachedFiles) { file in
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack {
-                                    Image(systemName: file.type.iconName)
-                                        .foregroundColor(.blue)
-                                        .frame(width: 16)
-                                    Text(file.type.displayName)
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                    Spacer()
-                                    Text(timeAgoString(from: file.timestamp))
-                                        .font(.caption2)
-                                        .foregroundColor(.secondary)
-                                }
-                                Text(file.name)
-                                    .font(.system(.body, design: .monospaced))
-                                    .lineLimit(2)
-                            }
-                            .padding(.vertical, 2)
-                        }
-                    } header: {
-                        Text("Attached Files")
-                    }
-                }
+
+            if enableMuse {
+                providerSection
+                providerCredentialSection
+                notchLayoutSection
+                floatingPanelSection
+                shortcutSection
+                quickPromptsSection
+                attachmentSection
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("Screen Assistant")
+        .navigationTitle("Muse")
+        .onAppear {
+            if selectedModel == nil || !selectedProvider.supportedModels.contains(where: { $0.id == selectedModel?.id }) {
+                selectedModel = selectedProvider.supportedModels.first
+            }
+        }
+        .onChange(of: selectedProvider) { _, provider in
+            if !provider.supportedModels.contains(where: { $0.id == selectedModel?.id }) {
+                selectedModel = provider.supportedModels.first
+            }
+        }
+        .onChange(of: museFloatingPanelCompactHeight) { _, compactHeight in
+            let minimumExpanded = compactHeight + 120
+            if museFloatingPanelExpandedHeight < minimumExpanded {
+                museFloatingPanelExpandedHeight = minimumExpanded
+            }
+        }
+        .onChange(of: museFloatingPanelExpandedHeight) { _, expandedHeight in
+            let minimumExpanded = museFloatingPanelCompactHeight + 120
+            if expandedHeight < minimumExpanded {
+                museFloatingPanelExpandedHeight = minimumExpanded
+            }
+        }
     }
-    
-    private func timeAgoString(from date: Date) -> String {
-        let interval = Date().timeIntervalSince(date)
-        
-        if interval < 60 {
-            return "Just now"
-        } else if interval < 3600 {
-            let minutes = Int(interval / 60)
-            return "\(minutes)m ago"
-        } else if interval < 86400 {
-            let hours = Int(interval / 3600)
-            return "\(hours)h ago"
-        } else {
-            let days = Int(interval / 86400)
-            return "\(days)d ago"
+
+    @ViewBuilder
+    private var providerSection: some View {
+        Section {
+            Picker("Provider", selection: $selectedProvider) {
+                ForEach(AIModelProvider.allCases) { provider in
+                    Text(provider.displayName).tag(provider)
+                }
+            }
+            .settingsHighlight(id: highlightID("Model"))
+
+            Picker("Model", selection: Binding(
+                get: { selectedModel ?? selectedProvider.supportedModels.first ?? AIModel(id: "default", name: "Default", supportsThinking: false) },
+                set: { selectedModel = $0 }
+            )) {
+                ForEach(selectedProvider.supportedModels) { model in
+                    Text(model.name).tag(model)
+                }
+            }
+
+            Toggle("Enable thinking mode", isOn: $enableThinkingMode)
+                .disabled(!(selectedModel?.supportsThinking ?? false))
+                .opacity((selectedModel?.supportsThinking ?? false) ? 1 : 0.5)
+
+            TextEditor(text: $museSystemPrompt)
+                .font(.body)
+                .frame(minHeight: 80)
+        } header: {
+            Text("Model")
+        } footer: {
+            Text(selectedProvider.description)
+        }
+    }
+
+    @ViewBuilder
+    private var providerCredentialSection: some View {
+        Section {
+            switch selectedProvider {
+            case .gemini:
+                SecureField("Gemini API Key", text: $geminiApiKey)
+            case .openai:
+                SecureField("OpenAI API Key", text: $openaiApiKey)
+            case .claude:
+                SecureField("Claude API Key", text: $claudeApiKey)
+            case .deepseek:
+                SecureField("DeepSeek API Key", text: $deepseekApiKey)
+            case .local:
+                TextField("Ollama Endpoint", text: $localModelEndpoint)
+            case .customOpenAI:
+                SecureField("Custom API Key", text: $customOpenAIApiKey)
+                TextField("Custom Endpoint", text: $customOpenAIEndpoint)
+                TextField("Custom Model", text: $customOpenAIModel)
+            }
+        } header: {
+            Text("Provider Configuration")
+        } footer: {
+            Text("Configure API key and endpoint for the selected provider.")
+        }
+    }
+
+    @ViewBuilder
+    private var shortcutSection: some View {
+        Section {
+            Toggle("Enable double Option to toggle panel", isOn: $enableDoubleOptionForMuse)
+            HStack {
+                Text("Double Option interval")
+                Spacer()
+                Text(String(format: "%.2fs", museDoubleOptionInterval))
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: $museDoubleOptionInterval, in: 0.2...0.8, step: 0.05)
+                .disabled(!enableDoubleOptionForMuse)
+                .opacity(enableDoubleOptionForMuse ? 1 : 0.5)
+        } header: {
+            Text("Shortcut Behavior")
+        } footer: {
+            Text("Primary global shortcut is configured in Shortcuts tab (default Option+Space).")
+        }
+    }
+
+    @ViewBuilder
+    private var notchLayoutSection: some View {
+        Section {
+            HStack {
+                Text("Muse Notch Height")
+                Spacer()
+                Text("\(Int(museNotchHeight))")
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: $museNotchHeight, in: 260...900, step: 10)
+        } header: {
+            Text("Notch Layout")
+        } footer: {
+            Text("Controls the open notch height when Muse tab is active.")
+        }
+    }
+
+    @ViewBuilder
+    private var floatingPanelSection: some View {
+        Section {
+            Toggle("Remember last floating panel position", isOn: $museFloatingPanelRememberLastPosition)
+
+            Picker("Default panel position", selection: $museFloatingPanelDefaultPosition) {
+                ForEach(MuseFloatingPanelDefaultPosition.allCases) { position in
+                    Text(position.localizedName).tag(position)
+                }
+            }
+            .disabled(museFloatingPanelRememberLastPosition)
+            .opacity(museFloatingPanelRememberLastPosition ? 0.5 : 1)
+
+            HStack {
+                Text("Panel edge inset")
+                Spacer()
+                Text("\(Int(museFloatingPanelEdgeInset))")
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: $museFloatingPanelEdgeInset, in: 8...120, step: 2)
+                .disabled(museFloatingPanelRememberLastPosition)
+                .opacity(museFloatingPanelRememberLastPosition ? 0.5 : 1)
+
+            HStack {
+                Text("Panel width")
+                Spacer()
+                Text("\(Int(museFloatingPanelWidth))")
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: $museFloatingPanelWidth, in: 360...900, step: 10)
+
+            HStack {
+                Text("Compact panel height")
+                Spacer()
+                Text("\(Int(museFloatingPanelCompactHeight))")
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: $museFloatingPanelCompactHeight, in: 84...280, step: 4)
+
+            HStack {
+                Text("Expanded panel height")
+                Spacer()
+                Text("\(Int(museFloatingPanelExpandedHeight))")
+                    .foregroundStyle(.secondary)
+            }
+            Slider(
+                value: $museFloatingPanelExpandedHeight,
+                in: max(220, museFloatingPanelCompactHeight + 120)...980,
+                step: 4
+            )
+        } header: {
+            Text("Floating Panel")
+        } footer: {
+            Text("Applies to Option+Space and double Option panel. Size switches dynamically between compact and expanded states.")
+        }
+    }
+
+    @ViewBuilder
+    private var quickPromptsSection: some View {
+        Section {
+            ForEach(Array(museQuickPrompts.enumerated()), id: \.offset) { index, prompt in
+                HStack {
+                    TextField("Prompt", text: Binding(
+                        get: { museQuickPrompts[index] },
+                        set: { museQuickPrompts[index] = $0 }
+                    ))
+                    Button {
+                        museQuickPrompts.remove(at: index)
+                    } label: {
+                        Image(systemName: "minus.circle.fill")
+                            .foregroundStyle(.red)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            HStack {
+                TextField("Add quick prompt", text: $newQuickPrompt)
+                Button("Add") {
+                    let trimmed = newQuickPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+                    guard !trimmed.isEmpty else { return }
+                    museQuickPrompts.append(trimmed)
+                    newQuickPrompt = ""
+                }
+                .disabled(newQuickPrompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+        } header: {
+            Text("Quick Prompts")
+        } footer: {
+            Text("Quick prompt buttons are shown in the empty chat state.")
+        }
+    }
+
+    @ViewBuilder
+    private var attachmentSection: some View {
+        Section {
+            HStack {
+                Text("Attached Files")
+                Spacer()
+                Text("\(museManager.attachedFiles.count)")
+                    .foregroundStyle(.secondary)
+            }
+
+            HStack {
+                Text("Recording")
+                Spacer()
+                Text(museManager.isRecording ? "Recording" : "Ready")
+                    .foregroundStyle(museManager.isRecording ? .red : .secondary)
+            }
+
+            Button("Clear All Files") {
+                museManager.clearAllFiles()
+            }
+            .foregroundStyle(.red)
+            .disabled(museManager.attachedFiles.isEmpty)
+        } header: {
+            Text("Attachments")
+        } footer: {
+            Text("Attached files include documents, screenshots, and recordings for the next message.")
         }
     }
 }

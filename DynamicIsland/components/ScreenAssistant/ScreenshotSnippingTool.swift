@@ -145,7 +145,7 @@ class ScreenshotSnippingTool: NSObject, ObservableObject {
     // MARK: - Image Saving
     private func saveImageAndComplete(image: NSImage) {
         let filename = "screenshot_\(Int(Date().timeIntervalSince1970)).png"
-        let screenshotDir = ScreenAssistantManager.screenshotDataDirectory
+        let screenshotDir = MuseManager.screenshotDataDirectory
         
         // Ensure directory exists
         if !FileManager.default.fileExists(atPath: screenshotDir.path) {
