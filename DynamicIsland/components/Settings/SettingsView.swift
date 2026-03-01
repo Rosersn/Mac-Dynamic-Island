@@ -17,6 +17,14 @@ import SwiftUI
 import SwiftUIIntrospect
 import UniformTypeIdentifiers
 
+private extension Defaults.Toggle where Label == Text {
+    init(_ title: String, key: Defaults.Key<Bool>) {
+        self.init(key: key) {
+            Text(LocalizedStringKey(title))
+        }
+    }
+}
+
 private enum SettingsTab: String, CaseIterable, Identifiable {
     case general
     case liveActivities
@@ -275,7 +283,7 @@ struct SettingsView: View {
                     NavigationLink(value: tab) {
                         HStack(spacing: 10) {
                             sidebarIcon(for: tab)
-                            Text(tab.title)
+                            Text(LocalizedStringKey(tab.title))
                             if tab == .downloads || tab == .hudAndOSD {
                                 Spacer()
                                 Text("BETA")
@@ -523,10 +531,10 @@ struct SettingsView: View {
                                 }
 
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(suggestion.title)
+                                Text(LocalizedStringKey(suggestion.title))
                                     .font(.system(size: 13, weight: .semibold))
                                     .foregroundStyle(Color.primary)
-                                Text(suggestion.tab.title)
+                                Text(LocalizedStringKey(suggestion.tab.title))
                                     .font(.system(size: 11))
                                     .foregroundStyle(Color.secondary)
                             }
@@ -930,7 +938,7 @@ struct GeneralSettings: View {
             Section {
                 Defaults.Toggle("Menubar icon", key: .menubarIcon)
                     .settingsHighlight(id: highlightID("Menubar icon"))
-                LaunchAtLogin.Toggle("Launch at login")
+                LaunchAtLogin.Toggle(String(localized: "Launch at login"))
                     .settingsHighlight(id: highlightID("Launch at login"))
                 Defaults.Toggle(key: .showOnAllDisplays) {
                     Text("Show on all displays")
@@ -1247,7 +1255,7 @@ struct Downloads: View {
                     }
                 }
                 
-                Text(style.rawValue)
+                Text(LocalizedStringKey(style.rawValue))
                     .font(.caption)
                     .fontWeight(.medium)
                     .lineLimit(2)
@@ -2029,7 +2037,7 @@ struct Media: View {
             Section {
                 Picker("Music Source", selection: $mediaController) {
                     ForEach(availableMediaControllers) { controller in
-                        Text(controller.rawValue).tag(controller)
+                        Text(LocalizedStringKey(controller.rawValue)).tag(controller)
                     }
                 }
                 .onChange(of: mediaController) { _, _ in
@@ -2142,7 +2150,7 @@ struct Media: View {
                     .settingsHighlight(id: highlightID("Enable album art parallax effect"))
                 Picker("Sneak Peek Style", selection: $sneakPeekStyles){
                     ForEach(SneakPeekStyle.allCases) { style in
-                        Text(style.rawValue).tag(style)
+                        Text(LocalizedStringKey(style.rawValue)).tag(style)
                     }
                 }
                 .disabled(!enableSneakPeek || enableMinimalisticUI)
@@ -2288,7 +2296,7 @@ struct CalendarSettings: View {
 
         var id: String { rawValue }
 
-        var title: String {
+        var title: LocalizedStringKey {
             switch self {
             case .mins15: return "15 mins"
             case .mins30: return "30 mins"
@@ -2414,7 +2422,7 @@ struct CalendarSettings: View {
 
                     Picker("Chip color", selection: $lockScreenReminderChipStyle) {
                         ForEach(LockScreenReminderChipStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -2697,7 +2705,7 @@ private extension DevicesSettingsView {
         case symbol
         case threeD
 
-        var title: String {
+        var title: LocalizedStringKey {
             switch self {
             case .symbol:
                 return "Symbol"
@@ -3269,14 +3277,14 @@ struct Appearance: View {
                 if #available(macOS 26.0, *) {
                     Picker("Material", selection: $lockScreenGlassStyle) {
                         ForEach(LockScreenGlassStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .settingsHighlight(id: highlightID("Lock screen material"))
                 } else {
                     Picker("Material", selection: $lockScreenGlassStyle) {
                         ForEach(LockScreenGlassStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .disabled(true)
@@ -3289,7 +3297,7 @@ struct Appearance: View {
                 if lockScreenGlassStyle == .liquid {
                     Picker("Lock screen glass mode", selection: $lockScreenGlassCustomizationMode) {
                         ForEach(LockScreenGlassCustomizationMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
+                            Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -3351,7 +3359,7 @@ struct Appearance: View {
                     .settingsHighlight(id: highlightID("Enable blur effect behind album art"))
                 Picker("Slider color", selection: $sliderColor) {
                     ForEach(SliderColorEnum.allCases, id: \.self) { option in
-                        Text(option.rawValue)
+                        Text(LocalizedStringKey(option.rawValue))
                     }
                 }
                 .settingsHighlight(id: highlightID("Slider color"))
@@ -3880,7 +3888,7 @@ struct LockScreenSettings: View {
 
         var id: String { rawValue }
 
-        var title: String {
+        var title: LocalizedStringKey {
             switch self {
             case .mins15: return "15 mins"
             case .mins30: return "30 mins"
@@ -3901,7 +3909,7 @@ struct LockScreenSettings: View {
 
         var id: String { rawValue }
 
-        var title: String {
+        var title: LocalizedStringKey {
             switch self {
             case .leading: return "Left"
             case .center: return "Center"
@@ -3966,14 +3974,14 @@ struct LockScreenSettings: View {
                 if #available(macOS 26.0, *) {
                     Picker("Material", selection: $lockScreenGlassStyle) {
                         ForEach(LockScreenGlassStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .settingsHighlight(id: highlightID("Material"))
                 } else {
                     Picker("Material", selection: $lockScreenGlassStyle) {
                         ForEach(LockScreenGlassStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .disabled(true)
@@ -3986,7 +3994,7 @@ struct LockScreenSettings: View {
                 if lockScreenGlassStyle == .liquid {
                     Picker("Glass mode", selection: $lockScreenGlassCustomizationMode) {
                         ForEach(LockScreenGlassCustomizationMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
+                            Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -4054,7 +4062,7 @@ struct LockScreenSettings: View {
                     .settingsHighlight(id: highlightID("Show lock screen timer"))
                 Picker("Timer surface", selection: timerSurfaceBinding) {
                     ForEach(LockScreenTimerSurfaceMode.allCases) { mode in
-                        Text(mode.rawValue).tag(mode)
+                        Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -4065,7 +4073,7 @@ struct LockScreenSettings: View {
                 if timerGlassModeIsGlass {
                     Picker("Timer glass material", selection: $lockScreenTimerGlassStyle) {
                         ForEach(LockScreenGlassStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .disabled(!enableLockScreenTimerWidget)
@@ -4075,7 +4083,7 @@ struct LockScreenSettings: View {
                     if lockScreenTimerGlassStyle == .liquid {
                         Picker("Timer liquid mode", selection: $lockScreenTimerGlassCustomizationMode) {
                             ForEach(LockScreenGlassCustomizationMode.allCases) { mode in
-                                Text(mode.rawValue).tag(mode)
+                                Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                             }
                         }
                         .pickerStyle(.segmented)
@@ -4118,7 +4126,7 @@ struct LockScreenSettings: View {
                 if enableLockScreenWeatherWidget {
                     Picker("Layout", selection: $lockScreenWeatherWidgetStyle) {
                         ForEach(LockScreenWeatherWidgetStyle.allCases) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -4134,7 +4142,7 @@ struct LockScreenSettings: View {
 
                     Picker("Temperature unit", selection: $lockScreenWeatherTemperatureUnit) {
                         ForEach(LockScreenWeatherTemperatureUnit.allCases) { unit in
-                            Text(unit.rawValue).tag(unit)
+                            Text(LocalizedStringKey(unit.rawValue)).tag(unit)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -4183,7 +4191,7 @@ struct LockScreenSettings: View {
 
                 Picker("Chip color", selection: $lockScreenReminderChipStyle) {
                     ForEach(LockScreenReminderChipStyle.allCases) { style in
-                        Text(style.rawValue).tag(style)
+                        Text(LocalizedStringKey(style.rawValue)).tag(style)
                     }
                 }
                 .pickerStyle(.segmented)
@@ -5372,7 +5380,7 @@ struct TimerSettings: View {
                 .settingsHighlight(id: highlightID("Show lock screen timer widget"))
             Picker("Timer surface", selection: timerSurfaceBinding) {
                 ForEach(LockScreenTimerSurfaceMode.allCases) { mode in
-                    Text(mode.rawValue).tag(mode)
+                    Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                 }
             }
             .pickerStyle(.segmented)
@@ -5383,7 +5391,7 @@ struct TimerSettings: View {
             if timerGlassModeIsGlass {
                 Picker("Timer glass material", selection: $lockScreenTimerGlassStyle) {
                     ForEach(LockScreenGlassStyle.allCases) { style in
-                        Text(style.rawValue).tag(style)
+                        Text(LocalizedStringKey(style.rawValue)).tag(style)
                     }
                 }
                 .disabled(!enableLockScreenTimerWidget)
@@ -5393,7 +5401,7 @@ struct TimerSettings: View {
                 if lockScreenTimerGlassStyle == .liquid {
                     Picker("Timer liquid mode", selection: $lockScreenTimerGlassCustomizationMode) {
                         ForEach(LockScreenGlassCustomizationMode.allCases) { mode in
-                            Text(mode.rawValue).tag(mode)
+                            Text(LocalizedStringKey(mode.rawValue)).tag(mode)
                         }
                     }
                     .pickerStyle(.segmented)
@@ -5495,7 +5503,7 @@ struct TimerSettings: View {
 
             Picker("Progress style", selection: $progressStyle) {
                 ForEach(TimerProgressStyle.allCases) { style in
-                    Text(style.rawValue).tag(style)
+                    Text(LocalizedStringKey(style.rawValue)).tag(style)
                 }
             }
             .pickerStyle(.segmented)
@@ -6599,7 +6607,7 @@ struct CustomOSDSettings: View {
                 Section {
                     Picker("Material", selection: $osdMaterial) {
                         ForEach(OSDMaterial.allCases, id: \.self) { material in
-                            Text(material.rawValue).tag(material)
+                            Text(LocalizedStringKey(material.rawValue)).tag(material)
                         }
                     }
                     .settingsHighlight(id: highlightID("Material"))
@@ -6609,7 +6617,7 @@ struct CustomOSDSettings: View {
                     
                     Picker("Icon & Progress Color", selection: $osdIconColorStyle) {
                         ForEach(OSDIconColorStyle.allCases, id: \.self) { style in
-                            Text(style.rawValue).tag(style)
+                            Text(LocalizedStringKey(style.rawValue)).tag(style)
                         }
                     }
                     .settingsHighlight(id: highlightID("Icon & Progress Color"))
