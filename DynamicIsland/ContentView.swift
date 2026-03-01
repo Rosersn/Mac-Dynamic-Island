@@ -76,6 +76,7 @@ struct ContentView: View {
     @Default(.enableExtensionLiveActivities) var enableExtensionLiveActivities
     @Default(.showStandardMediaControls) var showStandardMediaControls
     @Default(.enableLyrics) var enableLyrics
+    @Default(.showClosedLyricsDuringTimer) var showClosedLyricsDuringTimer
     
     // Dynamic sizing based on view type and graph count with smooth transitions
     var dynamicNotchSize: CGSize {
@@ -825,15 +826,24 @@ struct ContentView: View {
             Defaults[.enableSneakPeek] &&
             Defaults[.sneakPeekStyles] == .inline
         )
+        let timerSecondaryActive: Bool = {
+            if case .timer = secondary { return true }
+            return false
+        }()
         let lyricLine = musicManager.currentLyrics.trimmingCharacters(in: .whitespacesAndNewlines)
-        let closedLyricsInlineActive = !inlineSneakPeekActive && enableLyrics && !lyricLine.isEmpty
+        let closedLyricsInlineActive = !inlineSneakPeekActive && enableLyrics && !lyricLine.isEmpty && !timerSecondaryActive
+        let closedLyricsTimerCompactActive = !inlineSneakPeekActive && timerSecondaryActive && enableLyrics && showClosedLyricsDuringTimer && !lyricLine.isEmpty
         let rightWingWidth = resolvedRightWingWidth(
             for: secondary,
             baseWidth: wingBaseWidth,
             centerBaseWidth: centerBaseWidth,
             notchHeight: notchContentHeight
         )
-        let effectiveCenterWidth = (inlineSneakPeekActive || closedLyricsInlineActive) ? 380 : centerBaseWidth
+        let effectiveCenterWidth: CGFloat = {
+            if inlineSneakPeekActive || closedLyricsInlineActive { return 380 }
+            if closedLyricsTimerCompactActive { return 320 }
+            return centerBaseWidth
+        }()
         let notchWidth = wingBaseWidth + effectiveCenterWidth + rightWingWidth
         let badgeBaseSize = max(13, notchContentHeight * 0.36)
         let badgeDisplaySize = badgeDisplaySize(for: secondary, baseSize: badgeBaseSize)
@@ -892,6 +902,35 @@ struct ContentView: View {
                                         .foregroundStyle(timerManager.timerColor)
                                 }
                             }
+                        } else if closedLyricsTimerCompactActive {
+                            let leadingWidth = max(1, effectiveCenterWidth - vm.closedNotchSize.width - 16)
+
+                            HStack(alignment: .center, spacing: 0) {
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(musicManager.songTitle)
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+
+                                    Text(lyricLine)
+                                        .font(.system(size: 9, weight: .regular))
+                                        .foregroundStyle(.white.opacity(0.78))
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .id(lyricLine)
+                                        .transition(.asymmetric(
+                                            insertion: .move(edge: .bottom).combined(with: .opacity),
+                                            removal: .move(edge: .top).combined(with: .opacity)
+                                        ))
+                                }
+                                .frame(width: leadingWidth, alignment: .leading)
+
+                                Spacer(minLength: vm.closedNotchSize.width)
+                            }
+                            .padding(.horizontal, 8)
+                            .frame(width: effectiveCenterWidth, alignment: .leading)
+                            .animation(.easeInOut(duration: 0.22), value: lyricLine)
                         } else if closedLyricsInlineActive {
                             let sideWidth = max(1, (effectiveCenterWidth - vm.closedNotchSize.width - 16) / 2)
                             let lyricBinding = Binding<String>(

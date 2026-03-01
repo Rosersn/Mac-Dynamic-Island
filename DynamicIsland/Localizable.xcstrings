@@ -30659,6 +30659,16 @@
         }
       }
     },
+    "Show closed lyrics while timer is active": {
+      "localizations": {
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "倒计时期间显示闭合状态歌词"
+          }
+        }
+      }
+    },
     "Player tinting": {
       "localizations": {
         "zh-Hans": {

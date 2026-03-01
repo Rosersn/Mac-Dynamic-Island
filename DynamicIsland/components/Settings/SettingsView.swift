@@ -2146,6 +2146,8 @@ struct Media: View {
                     .disabled(!enableSneakPeek)
                 Defaults.Toggle("Enable lyrics", key: .enableLyrics)
                     .settingsHighlight(id: highlightID("Enable lyrics"))
+                Defaults.Toggle("Show closed lyrics while timer is active", key: .showClosedLyricsDuringTimer)
+                    .disabled(!Defaults[.enableLyrics])
                 Defaults.Toggle("Enable album art parallax effect", key: .enableParallaxEffect)
                     .settingsHighlight(id: highlightID("Enable album art parallax effect"))
                 Picker("Sneak Peek Style", selection: $sneakPeekStyles){

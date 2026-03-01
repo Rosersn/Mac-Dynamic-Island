@@ -1022,6 +1022,7 @@ extension Defaults.Keys {
     
     // MARK: Lyrics Feature
     static let enableLyrics = Key<Bool>("enableLyrics", default: true)
+    static let showClosedLyricsDuringTimer = Key<Bool>("showClosedLyricsDuringTimer", default: false)
     
     // MARK: Notes Feature
     static let enableNotes = Key<Bool>("enableNotes", default: false)
