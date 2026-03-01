@@ -87,13 +87,16 @@ struct NotchNotesView: View {
                 .animation(.spring(response: 0.35, dampingFraction: 0.8), value: isEditingNewNote)
                 .animation(.spring(response: 0.35, dampingFraction: 0.8), value: selectedNoteId)
                 .overlay {
-                    // Hidden button for Cmd+V paste listener
-                    Button("") {
-                        handlePaste()
+                    if !isEditingNewNote && selectedNoteId == nil {
+                        // Hidden button for Cmd+V paste listener in list mode only.
+                        // Do not intercept paste while user is typing in the editor.
+                        Button("") {
+                            handlePaste()
+                        }
+                        .keyboardShortcut("v", modifiers: .command)
+                        .opacity(0)
+                        .allowsHitTesting(false)
                     }
-                    .keyboardShortcut("v", modifiers: .command)
-                    .opacity(0)
-                    .allowsHitTesting(false)
                 }
             }
         }
@@ -762,6 +765,7 @@ struct NoteListView: View {
                                 }
                             }
                         }
+                        .padding(.top, 8)
                         .padding(.horizontal, 16)
                         .padding(.bottom, 20)
                     }
@@ -1153,5 +1157,6 @@ struct NoteEditorView: View {
         guard active != isSuppressing else { return }
         isSuppressing = active
         vm.setScrollGestureSuppression(active, token: suppressionToken)
+        vm.setAutoCloseSuppression(active, token: suppressionToken)
     }
 }
