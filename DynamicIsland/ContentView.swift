@@ -75,6 +75,7 @@ struct ContentView: View {
     @Default(.enableCapsLockIndicator) var enableCapsLockIndicator
     @Default(.enableExtensionLiveActivities) var enableExtensionLiveActivities
     @Default(.showStandardMediaControls) var showStandardMediaControls
+    @Default(.enableLyrics) var enableLyrics
     
     // Dynamic sizing based on view type and graph count with smooth transitions
     var dynamicNotchSize: CGSize {
@@ -824,13 +825,15 @@ struct ContentView: View {
             Defaults[.enableSneakPeek] &&
             Defaults[.sneakPeekStyles] == .inline
         )
+        let lyricLine = musicManager.currentLyrics.trimmingCharacters(in: .whitespacesAndNewlines)
+        let closedLyricsInlineActive = !inlineSneakPeekActive && enableLyrics && !lyricLine.isEmpty
         let rightWingWidth = resolvedRightWingWidth(
             for: secondary,
             baseWidth: wingBaseWidth,
             centerBaseWidth: centerBaseWidth,
             notchHeight: notchContentHeight
         )
-        let effectiveCenterWidth = inlineSneakPeekActive ? 380 : centerBaseWidth
+        let effectiveCenterWidth = (inlineSneakPeekActive || closedLyricsInlineActive) ? 380 : centerBaseWidth
         let notchWidth = wingBaseWidth + effectiveCenterWidth + rightWingWidth
         let badgeBaseSize = max(13, notchContentHeight * 0.36)
         let badgeDisplaySize = badgeDisplaySize(for: secondary, baseSize: badgeBaseSize)
@@ -860,35 +863,99 @@ struct ContentView: View {
                 .fill(.black)
                 .frame(width: effectiveCenterWidth, height: notchContentHeight)
                 .overlay(
-                    HStack(alignment: .top){
-                        if(coordinator.expandingView.show && coordinator.expandingView.type == .music) {
-                            MarqueeText(
-                                .constant(musicManager.songTitle),
-                                textColor: Defaults[.coloredSpectrogram] ? Color(nsColor: musicManager.avgColor) : Color.gray,
-                                minDuration: 0.4,
-                                frameWidth: 100
+                    Group {
+                        if inlineSneakPeekActive {
+                            HStack(alignment: .top) {
+                                if coordinator.expandingView.type == .music {
+                                    MarqueeText(
+                                        .constant(musicManager.songTitle),
+                                        textColor: Defaults[.coloredSpectrogram] ? Color(nsColor: musicManager.avgColor) : Color.gray,
+                                        minDuration: 0.4,
+                                        frameWidth: 100
+                                    )
+                                    Spacer(minLength: vm.closedNotchSize.width)
+                                    Text(musicManager.artistName)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .foregroundStyle(Defaults[.coloredSpectrogram] ? Color(nsColor: musicManager.avgColor) : Color.gray)
+                                } else if coordinator.expandingView.type == .timer {
+                                    MarqueeText(
+                                        .constant(timerManager.timerName),
+                                        textColor: timerManager.timerColor,
+                                        minDuration: 0.4,
+                                        frameWidth: 100
+                                    )
+                                    Spacer(minLength: vm.closedNotchSize.width)
+                                    Text(timerManager.formattedRemainingTime())
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                        .foregroundStyle(timerManager.timerColor)
+                                }
+                            }
+                        } else if closedLyricsInlineActive {
+                            let sideWidth = max(1, (effectiveCenterWidth - vm.closedNotchSize.width - 16) / 2)
+                            let lyricBinding = Binding<String>(
+                                get: { musicManager.currentLyrics.trimmingCharacters(in: .whitespacesAndNewlines) },
+                                set: { _ in }
                             )
-                            .opacity((coordinator.expandingView.show && Defaults[.enableSneakPeek] && Defaults[.sneakPeekStyles] == .inline) ? 1 : 0)
-                            Spacer(minLength: vm.closedNotchSize.width)
-                            Text(musicManager.artistName)
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .foregroundStyle(Defaults[.coloredSpectrogram] ? Color(nsColor: musicManager.avgColor) : Color.gray)
-                                .opacity((coordinator.expandingView.show && coordinator.expandingView.type == .music && Defaults[.enableSneakPeek] && Defaults[.sneakPeekStyles] == .inline) ? 1 : 0)
-                        } else if(coordinator.expandingView.show && coordinator.expandingView.type == .timer) {
-                            MarqueeText(
-                                .constant(timerManager.timerName),
-                                textColor: timerManager.timerColor,
-                                minDuration: 0.4,
-                                frameWidth: 100
-                            )
-                            .opacity((coordinator.expandingView.show && Defaults[.enableSneakPeek] && Defaults[.sneakPeekStyles] == .inline) ? 1 : 0)
-                            Spacer(minLength: vm.closedNotchSize.width)
-                            Text(timerManager.formattedRemainingTime())
-                                .lineLimit(1)
-                                .truncationMode(.tail)
-                                .foregroundStyle(timerManager.timerColor)
-                                .opacity((coordinator.expandingView.show && coordinator.expandingView.type == .timer && Defaults[.enableSneakPeek] && Defaults[.sneakPeekStyles] == .inline) ? 1 : 0)
+                            let playbackRate = max(0.5, musicManager.playbackRate)
+                            let lyricLength = max(1, lyricLine.count)
+                            let currentPosition = musicManager.estimatedPlaybackPosition()
+                            let nextLyricSeconds: Double? = {
+                                let currentIndex = musicManager.currentLyricIndex
+                                guard currentIndex >= 0, currentIndex + 1 < musicManager.syncedLyrics.count else { return nil }
+                                let trackDelta = musicManager.syncedLyrics[currentIndex + 1].timestamp - currentPosition
+                                guard trackDelta.isFinite, trackDelta > 0 else { return nil }
+                                return trackDelta / playbackRate
+                            }()
+                            let lengthBoost = min(1.25, Double(max(0, lyricLength - 14)) / 26.0)
+                            let baseAdaptiveSpeed = (34 + lengthBoost * 32) * playbackRate
+                            let windowAdaptiveSpeed: Double? = {
+                                guard let nextLyricSeconds else { return nil }
+                                let targetWindow = max(0.75, min(3.5, nextLyricSeconds * 0.82))
+                                let estimatedTravel = max(Double(sideWidth), Double(lyricLength) * 6.1) + 20
+                                return estimatedTravel / targetWindow
+                            }()
+                            let adaptiveSpeed = max(28, min(170, windowAdaptiveSpeed.map { max(baseAdaptiveSpeed, $0) } ?? baseAdaptiveSpeed))
+                            let adaptiveDelay = nextLyricSeconds.map { max(0, min(0.06, $0 * 0.05)) } ?? 0.04
+
+                            HStack(alignment: .center, spacing: 0) {
+                                VStack(alignment: .leading, spacing: 1) {
+                                    Text(musicManager.songTitle)
+                                        .font(.system(size: 11, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+
+                                    Text(musicManager.artistName)
+                                        .font(.system(size: 9, weight: .regular))
+                                        .foregroundStyle(Defaults[.playerColorTinting] ? Color(nsColor: musicManager.avgColor).ensureMinimumBrightness(factor: 0.6) : .gray)
+                                        .lineLimit(1)
+                                        .truncationMode(.tail)
+                                }
+                                .frame(width: sideWidth, alignment: .leading)
+
+                                Spacer(minLength: vm.closedNotchSize.width)
+
+                                MarqueeText(
+                                    lyricBinding,
+                                    font: .system(size: 11, weight: .medium),
+                                    nsFont: .subheadline,
+                                    textColor: .white.opacity(0.86),
+                                    minDuration: adaptiveDelay,
+                                    frameWidth: max(1, sideWidth),
+                                    pointsPerSecond: CGFloat(adaptiveSpeed)
+                                )
+                                    .frame(width: sideWidth, alignment: .trailing)
+                                    .id(lyricLine)
+                                    .transition(.asymmetric(
+                                        insertion: .push(from: .bottom).combined(with: .opacity),
+                                        removal: .push(from: .bottom).combined(with: .opacity)
+                                    ))
+                            }
+                            .padding(.horizontal, 8)
+                            .frame(width: effectiveCenterWidth, alignment: .leading)
+                            .animation(.easeInOut(duration: 0.28), value: lyricLine)
                         }
                     }
                 )

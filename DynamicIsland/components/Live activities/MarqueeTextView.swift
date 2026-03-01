@@ -45,12 +45,13 @@ struct MarqueeText: View {
     let backgroundColor: Color
     let minDuration: Double
     let frameWidth: CGFloat
+    let pointsPerSecond: CGFloat
     
     @State private var animate = false
     @State private var textSize: CGSize = .zero
     @State private var offset: CGFloat = 0
     
-    init(_ text: Binding<String>, font: Font = .body, nsFont: NSFont.TextStyle = .body, textColor: Color = .primary, backgroundColor: Color = .clear, minDuration: Double = 3.0, frameWidth: CGFloat = 200) {
+    init(_ text: Binding<String>, font: Font = .body, nsFont: NSFont.TextStyle = .body, textColor: Color = .primary, backgroundColor: Color = .clear, minDuration: Double = 3.0, frameWidth: CGFloat = 200, pointsPerSecond: CGFloat = 30.0) {
         _text = text
         self.font = font
         self.nsFont = nsFont
@@ -58,10 +59,17 @@ struct MarqueeText: View {
         self.backgroundColor = backgroundColor
         self.minDuration = minDuration
         self.frameWidth = frameWidth
+        self.pointsPerSecond = pointsPerSecond
     }
     
     private var needsScrolling: Bool {
         textSize.width > frameWidth
+    }
+
+    private var animationDuration: Double {
+        let travelDistance = max(1, textSize.width + 20)
+        let speed = max(1, pointsPerSecond)
+        return max(0.12, Double(travelDistance / speed))
     }
     
     var body: some View {
@@ -79,7 +87,7 @@ struct MarqueeText: View {
                 .offset(x: self.animate ? offset : 0)
                 .animation(
                     self.animate ?
-                        .linear(duration: Double(textSize.width / 30))
+                        .linear(duration: animationDuration)
                         .delay(minDuration)
                         .repeatForever(autoreverses: false) : .none,
                     value: self.animate

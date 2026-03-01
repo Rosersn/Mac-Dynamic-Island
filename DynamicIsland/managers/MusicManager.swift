@@ -130,6 +130,24 @@ class MusicManager: ObservableObject {
             }
             .store(in: &cancellables)
 
+        Defaults.publisher(.enableLyrics)
+            .map(\.newValue)
+            .removeDuplicates()
+            .sink { [weak self] enabled in
+                guard let self else { return }
+                Task { @MainActor in
+                    if enabled {
+                        self.fetchLyrics()
+                    } else {
+                        self.syncedLyrics = []
+                        self.currentLyrics = ""
+                        self.currentLyricIndex = -1
+                        self.stopLyricSync()
+                    }
+                }
+            }
+            .store(in: &cancellables)
+
         // Initialize deprecation check asynchronously
         Task { @MainActor in
             do {
@@ -292,8 +310,8 @@ class MusicManager: ObservableObject {
             self.lastArtworkAlbum = state.album
             self.lastArtworkBundleIdentifier = state.bundleIdentifier
 
-            // Fetch lyrics for new track whenever content changes
-            self.fetchLyrics()
+            // Fetch lyrics for the incoming track whenever content changes
+            self.fetchLyrics(artist: state.artist, title: state.title)
 
             // Only update sneak peek if there's actual content and something changed
             if shouldAutoPeekOnTrackChange && !state.title.isEmpty && !state.artist.isEmpty && state.isPlaying {
@@ -655,8 +673,21 @@ class MusicManager: ObservableObject {
     }
 
     // MARK: - Lyrics Methods
-    func fetchLyrics() {
+    func fetchLyrics(artist: String? = nil, title: String? = nil) {
         guard Defaults[.enableLyrics] else { return }
+        let resolvedArtist = (artist ?? artistName).trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedTitle = (title ?? songTitle).trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !resolvedArtist.isEmpty, !resolvedTitle.isEmpty else {
+            Task { @MainActor in
+                self.syncedLyrics = []
+                self.currentLyrics = ""
+                self.currentLyricIndex = -1
+                self.stopLyricSync()
+            }
+            return
+        }
+
         // If the lyrics panel is visible already, provide immediate feedback
         if showLyrics {
             Task { @MainActor in
@@ -668,7 +699,7 @@ class MusicManager: ObservableObject {
 
         Task {
             do {
-                let lyrics = try await fetchLyricsFromAPI(artist: artistName, title: songTitle)
+                let lyrics = try await fetchLyricsFromAPI(artist: resolvedArtist, title: resolvedTitle)
                 await MainActor.run {
                     self.syncedLyrics = lyrics
                     self.currentLyricIndex = -1
@@ -700,17 +731,15 @@ class MusicManager: ObservableObject {
     private func fetchLyricsFromAPI(artist: String, title: String) async throws -> [LyricLine] {
         guard !artist.isEmpty, !title.isEmpty else { return [] }
 
-        // Normalize input and percent-encode
+        // Normalize input and let URLComponents safely encode query items.
         let cleanArtist = artist.folding(options: .diacriticInsensitive, locale: .current)
         let cleanTitle = title.folding(options: .diacriticInsensitive, locale: .current)
-        guard let encodedArtist = cleanArtist.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
-              let encodedTitle = cleanTitle.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) else {
-            return []
-        }
-
-        // Use LRCLIB search endpoint which returns an array JSON with `plainLyrics` and/or `syncedLyrics`.
-        let urlString = "https://lrclib.net/api/search?track_name=\(encodedTitle)&artist_name=\(encodedArtist)"
-        guard let url = URL(string: urlString) else { return [] }
+        var components = URLComponents(string: "https://lrclib.net/api/search")
+        components?.queryItems = [
+            URLQueryItem(name: "track_name", value: cleanTitle),
+            URLQueryItem(name: "artist_name", value: cleanArtist)
+        ]
+        guard let url = components?.url else { return [] }
 
         let (data, response) = try await URLSession.shared.data(from: url)
         if let http = response as? HTTPURLResponse, http.statusCode == 200 {
