@@ -55,11 +55,6 @@ struct ContentView: View {
     @State private var downloadManager = DownloadManager.shared
     
     @Default(.enableStatsFeature) var enableStatsFeature
-    @Default(.showCpuGraph) var showCpuGraph
-    @Default(.showMemoryGraph) var showMemoryGraph
-    @Default(.showGpuGraph) var showGpuGraph
-    @Default(.showNetworkGraph) var showNetworkGraph
-    @Default(.showDiskGraph) var showDiskGraph
     @Default(.enableReminderLiveActivity) var enableReminderLiveActivity
     @Default(.enableTimerFeature) var enableTimerFeature
     @Default(.timerDisplayMode) var timerDisplayMode
@@ -108,18 +103,11 @@ struct ContentView: View {
             return CGSize(width: baseSize.width, height: preferredHeight)
         }
         
-        guard coordinator.currentView == .stats else {
-            return baseSize
-        }
-        
-        let rows = statsRowCount()
-        if rows <= 1 {
-            return baseSize
-        }
-        
-        let additionalRows = max(rows - 1, 0)
-        let extraHeight = CGFloat(additionalRows) * statsAdditionalRowHeight
-        return CGSize(width: baseSize.width, height: baseSize.height + extraHeight)
+        return statsAdjustedNotchSize(
+            from: baseSize,
+            isStatsTabActive: coordinator.currentView == .stats,
+            secondRowProgress: coordinator.statsSecondRowExpansion
+        )
     }
     
 
@@ -334,17 +322,14 @@ struct ContentView: View {
                         }
                     }
                 }
-                .onChange(of: vm.isStatsPopoverActive) { _, newPopoverState in
-                    runAfter(0.1) {
-                        if !newPopoverState && !isHovering && vm.notchState == .open && !shouldPreventAutoClose() {
-                            vm.close()
-                        }
-                    }
-                }
                 .onChange(of: vm.shouldRecheckHover) { _, _ in
                     // Recheck hover state when popovers are closed
                     runAfter(0.1) {
-                        if vm.notchState == .open && !shouldPreventAutoClose() && !isHovering {
+                        let hoveringNow = vm.isMouseHovering()
+                        if isHovering != hoveringNow {
+                            isHovering = hoveringNow
+                        }
+                        if vm.notchState == .open && !shouldPreventAutoClose() && !hoveringNow {
                             vm.close()
                         }
                     }
@@ -1543,23 +1528,6 @@ struct ContentView: View {
         }
     }
     
-    // Helper to check if stats tab has 4+ graphs (needs expanded height)
-    private func enabledStatsGraphCount() -> Int {
-        var enabledCount = 0
-        if showCpuGraph { enabledCount += 1 }
-        if showMemoryGraph { enabledCount += 1 }
-        if showGpuGraph { enabledCount += 1 }
-        if showNetworkGraph { enabledCount += 1 }
-        if showDiskGraph { enabledCount += 1 }
-        return enabledCount
-    }
-
-    private func statsRowCount() -> Int {
-        let count = enabledStatsGraphCount()
-        if count == 0 { return 0 }
-        return count <= 3 ? 1 : 2
-    }
-
     private func currentExtensionTabPayload() -> ExtensionNotchExperiencePayload? {
         guard Defaults[.enableThirdPartyExtensions],
               Defaults[.enableExtensionNotchExperiences],

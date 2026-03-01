@@ -43,6 +43,7 @@ struct TabModel: Identifiable {
 }
 
 struct TabSelectionView: View {
+    @EnvironmentObject var vm: DynamicIslandViewModel
     @ObservedObject var coordinator = DynamicIslandViewCoordinator.shared
     @ObservedObject private var extensionNotchExperienceManager = ExtensionNotchExperienceManager.shared
     @Default(.enableTimerFeature) var enableTimerFeature
@@ -57,6 +58,11 @@ struct TabSelectionView: View {
     @Default(.showStandardMediaControls) private var showStandardMediaControls
     @Default(.enableMinimalisticUI) private var enableMinimalisticUI
     @Namespace var animation
+    @State private var tabSwitchAutoCloseToken = UUID()
+    @State private var tabSwitchAutoCloseReleaseWorkItem: DispatchWorkItem?
+    @State private var tabSwitchAutoCloseSuppressed = false
+    @State private var scrollGestureSuppressionToken = UUID()
+    @State private var isSuppressingScrollGestures = false
     
     private var tabs: [TabModel] {
         var tabsArray: [TabModel] = []
@@ -105,36 +111,71 @@ struct TabSelectionView: View {
         return tabsArray
     }
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(tabs) { tab in
-                let isSelected = isSelected(tab)
-                let activeAccent = tab.accentColor ?? .white
-                TabButton(label: tab.label, icon: tab.icon, selected: isSelected) {
-                    withAnimation(.smooth) {
-                        if tab.view == .extensionExperience {
-                            coordinator.selectedExtensionExperienceID = tab.experienceID
+        let currentTabs = tabs
+        let horizontalPadding = tabHorizontalPadding(for: currentTabs.count)
+
+        ScrollViewReader { proxy in
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    ForEach(currentTabs) { tab in
+                        let isSelected = isSelected(tab)
+                        let activeAccent = tab.accentColor ?? .white
+                        TabButton(
+                            label: tab.label,
+                            icon: tab.icon,
+                            selected: isSelected,
+                            horizontalPadding: horizontalPadding
+                        ) {
+                            guard !isSelected else { return }
+                            suppressAutoCloseDuringTabSwitch()
+                            withAnimation(.smooth) {
+                                if tab.view == .extensionExperience {
+                                    coordinator.selectedExtensionExperienceID = tab.experienceID
+                                }
+                                coordinator.currentView = tab.view
+                            }
                         }
-                        coordinator.currentView = tab.view
-                    }
-                }
-                .frame(height: 26)
-                .foregroundStyle(isSelected ? activeAccent : .gray)
-                .background {
-                    if isSelected {
-                        Capsule()
-                            .fill((tab.accentColor ?? Color(nsColor: .secondarySystemFill)).opacity(0.25))
-                            .shadow(color: (tab.accentColor ?? .clear).opacity(0.4), radius: 8)
-                            .matchedGeometryEffect(id: "capsule", in: animation)
-                    } else {
-                        Capsule()
-                            .fill(Color.clear)
-                            .matchedGeometryEffect(id: "capsule", in: animation)
-                            .hidden()
+                        .frame(height: 26)
+                        .foregroundStyle(isSelected ? activeAccent : .gray)
+                        .background {
+                            if isSelected {
+                                Capsule()
+                                    .fill((tab.accentColor ?? Color(nsColor: .secondarySystemFill)).opacity(0.25))
+                                    .shadow(color: (tab.accentColor ?? .clear).opacity(0.4), radius: 8)
+                                    .matchedGeometryEffect(id: "capsule", in: animation)
+                            } else {
+                                Capsule()
+                                    .fill(Color.clear)
+                                    .matchedGeometryEffect(id: "capsule", in: animation)
+                                    .hidden()
+                            }
+                        }
+                        .id(tab.id)
                     }
                 }
             }
+            .clipped()
+            .onAppear {
+                scrollToCurrentSelection(using: proxy, animated: false)
+            }
+            .onChange(of: coordinator.currentView) { _, _ in
+                scrollToCurrentSelection(using: proxy)
+            }
+            .onChange(of: coordinator.selectedExtensionExperienceID) { _, _ in
+                scrollToCurrentSelection(using: proxy)
+            }
+            .onChange(of: currentTabs.map(\.id)) { _, _ in
+                scrollToCurrentSelection(using: proxy, animated: false)
+            }
         }
         .clipShape(Capsule())
+        .onHover { hovering in
+            updateScrollGestureSuppression(for: hovering)
+        }
+        .onDisappear {
+            updateScrollGestureSuppression(for: false)
+            releaseTabSwitchAutoCloseSuppression()
+        }
     }
 
     private var extensionTabsEnabled: Bool {
@@ -172,6 +213,63 @@ struct TabSelectionView: View {
             coordinator.selectedExtensionExperienceID = nil
         }
         coordinator.currentView = first.view
+    }
+
+    private func suppressAutoCloseDuringTabSwitch() {
+        tabSwitchAutoCloseReleaseWorkItem?.cancel()
+        tabSwitchAutoCloseReleaseWorkItem = nil
+
+        if !tabSwitchAutoCloseSuppressed {
+            vm.setAutoCloseSuppression(true, token: tabSwitchAutoCloseToken)
+            tabSwitchAutoCloseSuppressed = true
+        }
+
+        let releaseWorkItem = DispatchWorkItem {
+            releaseTabSwitchAutoCloseSuppression()
+        }
+        tabSwitchAutoCloseReleaseWorkItem = releaseWorkItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: releaseWorkItem)
+    }
+
+    private func releaseTabSwitchAutoCloseSuppression() {
+        tabSwitchAutoCloseReleaseWorkItem?.cancel()
+        tabSwitchAutoCloseReleaseWorkItem = nil
+
+        guard tabSwitchAutoCloseSuppressed else { return }
+        vm.setAutoCloseSuppression(false, token: tabSwitchAutoCloseToken)
+        tabSwitchAutoCloseSuppressed = false
+    }
+
+    private func tabHorizontalPadding(for tabCount: Int) -> CGFloat {
+        switch tabCount {
+        case ...4:
+            return 15
+        case 5...6:
+            return 12
+        default:
+            return 10
+        }
+    }
+
+    private func scrollToCurrentSelection(using proxy: ScrollViewProxy, animated: Bool = true) {
+        guard let selectedTab = tabs.first(where: isSelected) else { return }
+        let targetID = selectedTab.id
+
+        DispatchQueue.main.async {
+            if animated {
+                withAnimation(.easeOut(duration: 0.2)) {
+                    proxy.scrollTo(targetID, anchor: .center)
+                }
+            } else {
+                proxy.scrollTo(targetID, anchor: .center)
+            }
+        }
+    }
+
+    private func updateScrollGestureSuppression(for active: Bool) {
+        guard active != isSuppressingScrollGestures else { return }
+        isSuppressingScrollGestures = active
+        vm.setScrollGestureSuppression(active, token: scrollGestureSuppressionToken)
     }
 }
 

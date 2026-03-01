@@ -46,6 +46,7 @@ struct DynamicIslandHeader: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .clipped()
                 .opacity(vm.notchState == .closed ? 0 : 1)
                 .blur(radius: vm.notchState == .closed ? 20 : 0)
                 .animation(.smooth.delay(0.1), value: vm.notchState)

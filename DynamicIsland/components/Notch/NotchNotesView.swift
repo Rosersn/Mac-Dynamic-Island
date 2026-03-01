@@ -944,6 +944,7 @@ struct NoteRow: View {
 }
 
 struct NoteEditorView: View {
+    @EnvironmentObject var vm: DynamicIslandViewModel
     @Binding var title: String
     @Binding var content: String
     @Binding var imageData: Data?
@@ -963,6 +964,8 @@ struct NoteEditorView: View {
     }
 
     @FocusState private var isContentFocused: Bool
+    @State private var suppressionToken = UUID()
+    @State private var isSuppressing = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -1107,9 +1110,19 @@ struct NoteEditorView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity) // Ensure VStack takes full space
         .background(Color.black) // Ensure solid background
         .onAppear {
+            updateSuppression(for: true)
             if isNew {
                 isContentFocused = true
             }
         }
+        .onDisappear {
+            updateSuppression(for: false)
+        }
+    }
+
+    private func updateSuppression(for active: Bool) {
+        guard active != isSuppressing else { return }
+        isSuppressing = active
+        vm.setScrollGestureSuppression(active, token: suppressionToken)
     }
 }
