@@ -20,6 +20,8 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import AppKit
+import Defaults
 import SwiftUI
 
 struct TabButton: View {
@@ -28,6 +30,9 @@ struct TabButton: View {
     let selected: Bool
     let horizontalPadding: CGFloat
     let onClick: () -> Void
+    @Default(.enableHaptics) private var enableHaptics
+    @State private var isHovering = false
+    @State private var lastHoverHapticTime = Date.distantPast
 
     init(label: String, icon: String, selected: Bool, horizontalPadding: CGFloat = 15, onClick: @escaping () -> Void) {
         self.label = label
@@ -38,12 +43,46 @@ struct TabButton: View {
     }
     
     var body: some View {
+        let hoverFillOpacity: Double = {
+            guard isHovering else { return 0 }
+            return selected ? 0.08 : 0.16
+        }()
+        let hoverStrokeOpacity: Double = {
+            guard isHovering else { return 0 }
+            return selected ? 0.18 : 0.26
+        }()
+
         Button(action: onClick) {
             Image(systemName: icon)
+                .font(.system(size: 13, weight: isHovering ? .semibold : .regular))
+                .scaleEffect(isHovering ? 1.06 : 1.0)
                 .padding(.horizontal, horizontalPadding)
+                .padding(.vertical, 6)
+                .background {
+                    Capsule()
+                        .fill(Color.white.opacity(hoverFillOpacity))
+                        .overlay {
+                            Capsule()
+                                .stroke(Color.white.opacity(hoverStrokeOpacity), lineWidth: 1)
+                        }
+                }
                 .contentShape(Capsule())
         }
         .buttonStyle(PlainButtonStyle())
+        .help(label)
+        .onHover { hovering in
+            isHovering = hovering
+            triggerHoverHapticIfNeeded(hovering)
+        }
+        .animation(.easeOut(duration: 0.16), value: isHovering)
+    }
+
+    private func triggerHoverHapticIfNeeded(_ hovering: Bool) {
+        guard hovering, enableHaptics else { return }
+        let now = Date()
+        guard now.timeIntervalSince(lastHoverHapticTime) > 0.22 else { return }
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+        lastHoverHapticTime = now
     }
 }
 

@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import AppKit
 import Defaults
 import SwiftUI
 
@@ -66,26 +67,15 @@ struct DynamicIslandHeader: View {
             HStack(spacing: 4) {
                 if vm.notchState == .open && !Defaults[.enableMinimalisticUI] {
                     if Defaults[.showMirror] {
-                        Button(action: {
+                        HeaderIconButton(systemImage: "web.camera", helpText: "Mirror") {
                             vm.toggleCameraPreview()
-                        }) {
-                            Capsule()
-                                .fill(.black)
-                                .frame(width: 30, height: 30)
-                                .overlay {
-                                    Image(systemName: "web.camera")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .imageScale(.medium)
-                                }
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     if Defaults[.enableClipboardManager]
                         && showClipboardIcon
                         && clipboardDisplayMode != .separateTab {
-                        Button(action: {
+                        HeaderIconButton(systemImage: "doc.on.clipboard", helpText: "Clipboard") {
                             // Switch behavior based on display mode
                             switch clipboardDisplayMode {
                             case .panel:
@@ -95,18 +85,7 @@ struct DynamicIslandHeader: View {
                             case .separateTab:
                                 coordinator.currentView = .notes
                             }
-                        }) {
-                            Capsule()
-                                .fill(.black)
-                                .frame(width: 30, height: 30)
-                                .overlay {
-                                    Image(systemName: "doc.on.clipboard")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .imageScale(.medium)
-                                }
                         }
-                        .buttonStyle(PlainButtonStyle())
                         .popover(isPresented: $showClipboardPopover, arrowEdge: .bottom) {
                             ClipboardPopover()
                         }
@@ -129,25 +108,14 @@ struct DynamicIslandHeader: View {
                     
                     // ColorPicker button
                     if Defaults[.enableColorPickerFeature] {
-                        Button(action: {
+                        HeaderIconButton(systemImage: "eyedropper", helpText: "Color Picker") {
                             switch Defaults[.colorPickerDisplayMode] {
                             case .panel:
                                 ColorPickerPanelManager.shared.toggleColorPickerPanel()
                             case .popover:
                                 showColorPickerPopover.toggle()
                             }
-                        }) {
-                            Capsule()
-                                .fill(.black)
-                                .frame(width: 30, height: 30)
-                                .overlay {
-                                    Image(systemName: "eyedropper")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .imageScale(.medium)
-                                }
                         }
-                        .buttonStyle(PlainButtonStyle())
                         .popover(isPresented: $showColorPickerPopover, arrowEdge: .bottom) {
                             ColorPickerPopover()
                         }
@@ -164,22 +132,11 @@ struct DynamicIslandHeader: View {
                     }
                     
                     if Defaults[.enableTimerFeature] && timerDisplayMode == .popover {
-                        Button(action: {
+                        HeaderIconButton(systemImage: "timer", helpText: "Timer") {
                             withAnimation(.smooth) {
                                 showTimerPopover.toggle()
                             }
-                        }) {
-                            Capsule()
-                                .fill(.black)
-                                .frame(width: 30, height: 30)
-                                .overlay {
-                                    Image(systemName: "timer")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .imageScale(.medium)
-                                }
                         }
-                        .buttonStyle(PlainButtonStyle())
                         .popover(isPresented: $showTimerPopover, arrowEdge: .bottom) {
                             TimerPopover()
                         }
@@ -194,20 +151,9 @@ struct DynamicIslandHeader: View {
                     }
                     
                     if Defaults[.settingsIconInNotch] {
-                        Button(action: {
+                        HeaderIconButton(systemImage: "gear", helpText: "Settings") {
                             SettingsWindowController.shared.showWindow()
-                        }) {
-                            Capsule()
-                                .fill(.black)
-                                .frame(width: 30, height: 30)
-                                .overlay {
-                                    Image(systemName: "gear")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .imageScale(.medium)
-                                }
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
                     
                     // Screen Recording Indicator
@@ -285,6 +231,49 @@ struct DynamicIslandHeader: View {
                 vm.isTimerPopoverActive = false
             }
         }
+    }
+}
+
+private struct HeaderIconButton: View {
+    let systemImage: String
+    let helpText: String
+    let action: () -> Void
+    @Default(.enableHaptics) private var enableHaptics
+    @State private var isHovering = false
+    @State private var lastHoverHapticTime = Date.distantPast
+
+    var body: some View {
+        Button(action: action) {
+            Capsule()
+                .fill(isHovering ? Color.white.opacity(0.14) : .black)
+                .frame(width: 30, height: 30)
+                .overlay {
+                    Capsule()
+                        .stroke(Color.white.opacity(isHovering ? 0.32 : 0.12), lineWidth: 1)
+                }
+                .overlay {
+                    Image(systemName: systemImage)
+                        .foregroundColor(.white)
+                        .imageScale(.medium)
+                        .scaleEffect(isHovering ? 1.08 : 1.0)
+                }
+                .shadow(color: Color.white.opacity(isHovering ? 0.2 : 0), radius: 8, y: 1)
+        }
+        .buttonStyle(PlainButtonStyle())
+        .help(helpText)
+        .onHover { hovering in
+            isHovering = hovering
+            triggerHoverHapticIfNeeded(hovering)
+        }
+        .animation(.easeOut(duration: 0.16), value: isHovering)
+    }
+
+    private func triggerHoverHapticIfNeeded(_ hovering: Bool) {
+        guard hovering, enableHaptics else { return }
+        let now = Date()
+        guard now.timeIntervalSince(lastHoverHapticTime) > 0.22 else { return }
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+        lastHoverHapticTime = now
     }
 }
 

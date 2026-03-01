@@ -16,6 +16,7 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+import AppKit
 import SwiftUI
 import Defaults
 
@@ -445,7 +446,9 @@ struct NotchStatsView: View {
 // Unified Stats Card Component - handles both single and dual data types, matches boring.notch sizing
 struct UnifiedStatsCard: View {
     let graphData: GraphData
+    @Default(.enableHaptics) private var enableHaptics
     @State private var isHovered = false
+    @State private var lastHoverHapticTime = Date.distantPast
     
     var body: some View {
         VStack(spacing: 3) { // Match boring.notch spacing
@@ -454,6 +457,8 @@ struct UnifiedStatsCard: View {
                 Image(systemName: graphData.icon)
                     .foregroundStyle(graphData.color)
                     .font(.caption) // Match boring.notch font size
+                    .scaleEffect(isHovered ? 1.12 : 1.0)
+                    .shadow(color: graphData.color.opacity(isHovered ? 0.45 : 0), radius: 6)
                 
                 Text(graphData.title)
                     .font(.caption) // Match boring.notch font size
@@ -518,17 +523,22 @@ struct UnifiedStatsCard: View {
         .padding(8) // Match boring.notch padding - reduced from 10
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.08))
+                .fill(Color.white.opacity(isHovered ? 0.15 : 0.08))
                 .overlay(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white.opacity(isHovered ? 0.45 : 0.18), lineWidth: 1)
+                        .stroke(Color.white.opacity(isHovered ? 0.56 : 0.18), lineWidth: 1)
                 )
         )
-        .scaleEffect(isHovered ? 1.02 : 1.0)
+        .scaleEffect(isHovered ? 1.03 : 1.0)
+        .shadow(color: graphData.color.opacity(isHovered ? 0.22 : 0), radius: 10, y: 2)
+        .help(supportsDetails(for: graphData) ? "Click to view details" : graphData.title)
         .animation(.easeInOut(duration: 0.2), value: isHovered)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onHover { hovering in
-            isHovered = hovering
+            withAnimation(.easeOut(duration: 0.18)) {
+                isHovered = hovering
+            }
+            triggerHoverHapticIfNeeded(hovering)
         }
     }
 
@@ -539,6 +549,14 @@ struct UnifiedStatsCard: View {
         default:
             return false
         }
+    }
+
+    private func triggerHoverHapticIfNeeded(_ hovering: Bool) {
+        guard hovering, enableHaptics else { return }
+        let now = Date()
+        guard now.timeIntervalSince(lastHoverHapticTime) > 0.22 else { return }
+        NSHapticFeedbackManager.defaultPerformer.perform(.alignment, performanceTime: .default)
+        lastHoverHapticTime = now
     }
 }
 

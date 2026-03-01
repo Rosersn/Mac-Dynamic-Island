@@ -156,13 +156,17 @@ struct NotchTimerView: View {
             HStack(alignment: .center, spacing: 14) {
                 leadingControlSection
                     .frame(width: 128, alignment: .leading)
+                    .zIndex(3)
 
                 timerTitleSection
+                    .allowsHitTesting(false)
 
                 countdownSection
+                    .allowsHitTesting(false)
             }
 
             progressSection
+                .allowsHitTesting(false)
         }
         .padding(.horizontal, 4)
     }
@@ -175,7 +179,7 @@ struct NotchTimerView: View {
                     TimerControlButton(
                         icon: pauseIconName,
                         foreground: .white.opacity(0.95),
-                        background: timerAccentColor.opacity(0.32),
+                        background: timerAccentColor.opacity(0.42),
                         accessibilityLabel: pauseAccessibilityLabel,
                         action: togglePauseAction
                     )
@@ -183,7 +187,7 @@ struct NotchTimerView: View {
                     TimerControlButton(
                         icon: "xmark",
                         foreground: .white.opacity(0.95),
-                        background: Color.white.opacity(0.16),
+                        background: Color.white.opacity(0.3),
                         accessibilityLabel: "Cancel",
                         action: stopTimerAction
                     )
@@ -191,7 +195,7 @@ struct NotchTimerView: View {
                     TimerControlButton(
                         icon: "stop.fill",
                         foreground: .white.opacity(0.95),
-                        background: Color.white.opacity(0.16),
+                        background: Color.red.opacity(0.35),
                         accessibilityLabel: "Stop",
                         action: stopTimerAction
                     )
