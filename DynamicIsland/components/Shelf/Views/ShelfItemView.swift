@@ -35,6 +35,7 @@ struct ShelfItemView: View {
     @State private var showStack = false
     @State private var cachedPreviewImage: NSImage?
     @State private var debouncedDropTarget = false
+    @State private var isHovered = false
 
     private var isSelected: Bool { viewModel.isSelected }
     private var shouldHideDuringDrag: Bool { selection.isDragging && selection.isSelected(item.id) && false }
@@ -56,8 +57,13 @@ struct ShelfItemView: View {
                 .padding(.horizontal, 5)
                 .background(backgroundView)
                 .contentShape(Rectangle())
+                .scaleEffect(isHovered ? 1.01 : 1)
                 .animation(.easeInOut(duration: 0.1), value: debouncedDropTarget)
                 .animation(.easeInOut(duration: 0.1), value: isSelected)
+                .animation(.easeInOut(duration: 0.12), value: isHovered)
+                .onHover { hovering in
+                    isHovered = hovering
+                }
 
                 DraggableClickHandler(
                     item: item,
@@ -145,6 +151,8 @@ struct ShelfItemView: View {
             return Color.accentColor.opacity(0.25)
         } else if isSelected {
             return Color.accentColor.opacity(0.15)
+        } else if isHovered {
+            return Color.white.opacity(0.08)
         } else {
             return Color.clear
         }
@@ -155,6 +163,8 @@ struct ShelfItemView: View {
             return Color.accentColor.opacity(0.9)
         } else if isSelected {
             return Color.accentColor.opacity(0.8)
+        } else if isHovered {
+            return Color.white.opacity(0.2)
         } else {
             return Color.clear
         }

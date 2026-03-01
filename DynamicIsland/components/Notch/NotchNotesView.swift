@@ -556,6 +556,10 @@ struct NoteListView: View {
     @State private var isSuppressing = false
     @State private var showClearNotesAlert = false
     @State private var autoCloseToken = UUID()
+    @State private var isSearchButtonHovering = false
+    @State private var isClipboardButtonHovering = false
+    @State private var isClearButtonHovering = false
+    @State private var isAddButtonHovering = false
 
     var sortedNotes: [NoteItem] {
         var filtered = searchText.isEmpty ? notes : notes.filter { 
@@ -595,12 +599,16 @@ struct NoteListView: View {
                             .font(.system(size: 14, weight: isSearchExpanded ? .bold : .medium))
                             .symbolVariant(isSearchExpanded ? .circle.fill : .none)
                             .frame(width: 16, height: 16) // Fixed frame to stabilize
-                            .foregroundStyle(isSearchExpanded ? .blue : .white.opacity(0.6))
+                            .foregroundStyle(isSearchExpanded ? .blue : .white.opacity(isSearchButtonHovering ? 0.9 : 0.6))
                             .padding(5)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
+                            .background(headerButtonBackground(isHovering: isSearchButtonHovering))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(isSearchButtonHovering ? 1.05 : 1)
+                    .animation(.smooth(duration: 0.16), value: isSearchButtonHovering)
+                    .onHover { hovering in
+                        isSearchButtonHovering = hovering
+                    }
                 }
 
                 if enableCreateFromClipboard {
@@ -608,12 +616,16 @@ struct NoteListView: View {
                         Image(systemName: "doc.on.clipboard")
                             .font(.system(size: 13))
                             .frame(width: 16, height: 16)
-                            .foregroundStyle(.white.opacity(0.6))
+                            .foregroundStyle(.white.opacity(isClipboardButtonHovering ? 0.9 : 0.6))
                             .padding(5)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
+                            .background(headerButtonBackground(isHovering: isClipboardButtonHovering))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(isClipboardButtonHovering ? 1.05 : 1)
+                    .animation(.smooth(duration: 0.16), value: isClipboardButtonHovering)
+                    .onHover { hovering in
+                        isClipboardButtonHovering = hovering
+                    }
                     .help("Create from Clipboard")
                 }
                 
@@ -624,22 +636,30 @@ struct NoteListView: View {
                             .frame(width: 16, height: 16)
                             .foregroundStyle(.red)
                             .padding(5)
-                            .background(Color.white.opacity(0.1))
-                            .clipShape(Circle())
+                            .background(headerButtonBackground(isHovering: isClearButtonHovering))
                     }
                     .buttonStyle(PlainButtonStyle())
+                    .scaleEffect(isClearButtonHovering ? 1.05 : 1)
+                    .animation(.smooth(duration: 0.16), value: isClearButtonHovering)
+                    .onHover { hovering in
+                        isClearButtonHovering = hovering
+                    }
                 }
 
                 Button(action: onCreate) {
                     Image(systemName: "plus")
                         .font(.system(size: 14, weight: .bold))
                         .frame(width: 16, height: 16)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.white.opacity(isAddButtonHovering ? 1 : 0.92))
                         .padding(5)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(Circle())
+                        .background(headerButtonBackground(isHovering: isAddButtonHovering))
                 }
                 .buttonStyle(PlainButtonStyle())
+                .scaleEffect(isAddButtonHovering ? 1.05 : 1)
+                .animation(.smooth(duration: 0.16), value: isAddButtonHovering)
+                .onHover { hovering in
+                    isAddButtonHovering = hovering
+                }
             }
             .padding(.horizontal, 16) // Reduced from 20
             .padding(.top, 8)
@@ -776,6 +796,15 @@ struct NoteListView: View {
         .onChange(of: showClearNotesAlert) { _, isShowing in
             vm.setAutoCloseSuppression(isShowing, token: autoCloseToken)
         }
+    }
+
+    private func headerButtonBackground(isHovering: Bool) -> some View {
+        Circle()
+            .fill(Color.white.opacity(isHovering ? 0.2 : 0.1))
+            .overlay(
+                Circle()
+                    .stroke(Color.white.opacity(isHovering ? 0.24 : 0.08), lineWidth: 1)
+            )
     }
 
     private func updateSuppression(for hovering: Bool) {

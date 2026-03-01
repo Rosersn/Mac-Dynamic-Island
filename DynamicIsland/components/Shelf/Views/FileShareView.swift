@@ -33,6 +33,7 @@ struct FileShareView: View {
     @State private var hostView: NSView?
     @State private var interactionNonce: UUID = .init()
     @State private var isProcessing = false
+    @State private var isHoveringDropArea = false
     
     private var selectedProvider: QuickShareProvider {
         quickShare.availableProviders.first(where: { $0.id == quickShareProvider }) ?? QuickShareProvider(id: "System Share Menu", imageData: nil, supportsRawText: true)
@@ -52,31 +53,43 @@ struct FileShareView: View {
                     await handleClick()
                 }
             }
+            .onHover { hovering in
+                withAnimation(.smooth(duration: 0.16)) {
+                    isHoveringDropArea = hovering
+                }
+            }
     }
 
     private var dropArea: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 12)
                 .fill(
-                    LinearGradient(colors: [Color.black.opacity(0.35), Color.black.opacity(0.20)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    LinearGradient(
+                        colors: [
+                            Color.black.opacity(isHoveringDropArea ? 0.44 : 0.35),
+                            Color.black.opacity(isHoveringDropArea ? 0.28 : 0.20)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 12)
                         .stroke(
                             vm.dropZoneTargeting
                                 ? Color.accentColor.opacity(0.9)
-                                : Color.white.opacity(0.1),
+                                : Color.white.opacity(isHoveringDropArea ? 0.24 : 0.1),
                             style: StrokeStyle(lineWidth: 3, lineCap: .round, dash: [10])
                         )
                 )
-                .shadow(color: Color.black.opacity(0.6), radius: 6, x: 0, y: 2)
+                .shadow(color: Color.black.opacity(isHoveringDropArea ? 0.75 : 0.6), radius: isHoveringDropArea ? 9 : 6, x: 0, y: 2)
 
             // Content
             VStack(spacing: 5) {
                 ZStack {
                     Circle()
                         .fill(Color.white.opacity(
-                            vm.dropZoneTargeting ? 0.11 : 0.09
+                            vm.dropZoneTargeting ? 0.16 : (isHoveringDropArea ? 0.14 : 0.09)
                         ))
                         .frame(width: 55, height: 55)
                     Image(systemName: "square.and.arrow.up")
@@ -91,23 +104,26 @@ struct FileShareView: View {
                     }
                     .frame(width: 34, height: 34)
                         .foregroundStyle(
-                            vm.dropZoneTargeting ? Color.accentColor : Color.gray
+                            vm.dropZoneTargeting ? Color.accentColor : Color.white.opacity(isHoveringDropArea ? 0.9 : 0.68)
                         )
                         .scaleEffect(
-                            vm.dropZoneTargeting ? 1.06 : 1.0
+                            vm.dropZoneTargeting ? 1.08 : (isHoveringDropArea ? 1.04 : 1.0)
                         )
                         .animation(.spring(response: 0.36, dampingFraction: 0.7), value: vm.dropZoneTargeting)
+                        .animation(.smooth(duration: 0.16), value: isHoveringDropArea)
                 }
 
                 Text(selectedProvider.id)
                     .font(.system(.headline, design: .rounded))
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(.white.opacity(isHoveringDropArea ? 0.95 : 0.8))
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
 
             }
             .padding(18)
             .frame(maxWidth: .infinity)
+            .scaleEffect(isHoveringDropArea && !vm.dropZoneTargeting ? 1.01 : 1)
+            .animation(.smooth(duration: 0.16), value: isHoveringDropArea)
             
             // Loading overlay
             if isProcessing || quickShare.isPickerOpen {

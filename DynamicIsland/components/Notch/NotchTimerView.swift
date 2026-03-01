@@ -41,6 +41,8 @@ struct NotchTimerView: View {
     @State private var customSeconds: Int = 0
     @State private var isSyncingCustomDuration = false
     @State private var lockedAccentColor: Color?
+    @State private var isStartButtonHovering = false
+    @State private var isResetButtonHovering = false
 
     var body: some View {
         Group {
@@ -479,6 +481,7 @@ struct NotchTimerView: View {
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(startButtonColor.opacity(isStartDisabled ? 0.5 : 1))
+                        .brightness(isStartButtonHovering && !isStartDisabled ? 0.08 : 0)
                 )
         }
         .buttonStyle(.plain)
@@ -486,10 +489,25 @@ struct NotchTimerView: View {
         .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                .stroke(Color.white.opacity(isStartButtonHovering ? 0.32 : 0.15), lineWidth: 1)
         )
+        .shadow(color: startButtonColor.opacity(isStartButtonHovering && !isStartDisabled ? 0.35 : 0.16), radius: isStartButtonHovering ? 8 : 4, x: 0, y: 2)
+        .scaleEffect(isStartButtonHovering && !isStartDisabled ? 1.012 : 1)
+        .animation(.smooth(duration: 0.16), value: isStartButtonHovering)
         .opacity(isStartDisabled ? 0.7 : 1)
         .disabled(isStartDisabled)
+        .onHover { hovering in
+            guard !isStartDisabled else {
+                isStartButtonHovering = false
+                return
+            }
+            isStartButtonHovering = hovering
+        }
+        .onChange(of: isStartDisabled) { _, disabled in
+            if disabled {
+                isStartButtonHovering = false
+            }
+        }
     }
 
     private var resetButton: some View {
@@ -501,7 +519,7 @@ struct NotchTimerView: View {
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color.white.opacity(0.16))
+                        .fill(Color.white.opacity(isResetButtonHovering ? 0.24 : 0.16))
                 )
         }
         .buttonStyle(.plain)
@@ -509,8 +527,13 @@ struct NotchTimerView: View {
         .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .stroke(Color.white.opacity(0.08), lineWidth: 1)
+                .stroke(Color.white.opacity(isResetButtonHovering ? 0.24 : 0.08), lineWidth: 1)
         )
+        .scaleEffect(isResetButtonHovering ? 1.012 : 1)
+        .animation(.smooth(duration: 0.16), value: isResetButtonHovering)
+        .onHover { hovering in
+            isResetButtonHovering = hovering
+        }
     }
 
     private var customDurationInSeconds: TimeInterval {
@@ -639,6 +662,7 @@ private struct DurationField: View {
     @Binding var value: Int
     let range: ClosedRange<Int>
     let width: CGFloat
+    @State private var isHovering = false
 
     init(
         label: String,
@@ -661,8 +685,22 @@ private struct DurationField: View {
                 .foregroundColor(.white)
                 .tint(.white)
                 .frame(width: width, height: 46)
-                .background(Color.white.opacity(0.08))
+                .background(Color.white.opacity(isHovering ? 0.16 : 0.08))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .stroke(Color.white.opacity(isHovering ? 0.22 : 0.08), lineWidth: 1)
+                )
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+#if canImport(AppKit)
+                .background(
+                    ScrollWheelStepMonitor(isEnabled: isHovering) { direction in
+                        applyWheelStep(direction)
+                    }
+                )
+#endif
+                .onHover { hovering in
+                    isHovering = hovering
+                }
 
             Text(label)
                 .font(.caption)
@@ -680,12 +718,19 @@ private struct DurationField: View {
             }
         )
     }
+
+    private func applyWheelStep(_ direction: Int) {
+        let next = min(max(value + direction, range.lowerBound), range.upperBound)
+        guard next != value else { return }
+        value = next
+    }
 }
 
 private struct TimerPresetCard: View {
     let preset: TimerPreset
     let isActive: Bool
     let action: () -> Void
+    @State private var isHovering = false
 
     var body: some View {
         Button(action: action) {
@@ -721,12 +766,144 @@ private struct TimerPresetCard: View {
             .padding(.vertical, 6)
             .background(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .fill(isActive ? preset.color.opacity(0.12) : Color.white.opacity(0.04))
+                    .fill(cardBackgroundColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(cardStrokeColor, lineWidth: 1)
+                    )
             )
         }
         .buttonStyle(.plain)
+        .scaleEffect(isHovering ? 1.01 : 1)
+        .animation(.smooth(duration: 0.16), value: isHovering)
+        .onHover { hovering in
+            isHovering = hovering
+        }
+    }
+
+    private var cardBackgroundColor: Color {
+        if isActive {
+            return preset.color.opacity(isHovering ? 0.2 : 0.12)
+        }
+        return Color.white.opacity(isHovering ? 0.1 : 0.04)
+    }
+
+    private var cardStrokeColor: Color {
+        if isActive {
+            return preset.color.opacity(isHovering ? 0.6 : 0.3)
+        }
+        return Color.white.opacity(isHovering ? 0.2 : 0.06)
     }
 }
+
+#if canImport(AppKit)
+private struct ScrollWheelStepMonitor: NSViewRepresentable {
+    let isEnabled: Bool
+    let onStep: (Int) -> Void
+
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        context.coordinator.attach(to: view)
+        context.coordinator.isEnabled = isEnabled
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {
+        context.coordinator.isEnabled = isEnabled
+    }
+
+    static func dismantleNSView(_ nsView: NSView, coordinator: Coordinator) {
+        coordinator.detach()
+    }
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(onStep: onStep)
+    }
+
+    @MainActor
+    final class Coordinator: NSObject {
+        var isEnabled = false
+
+        private let onStep: (Int) -> Void
+        private weak var observedView: NSView?
+        private var localMonitor: Any?
+        private var accumulatedDelta: CGFloat = 0
+        private let stepThreshold: CGFloat = 10
+        private let noiseThreshold: CGFloat = 0.3
+
+        init(onStep: @escaping (Int) -> Void) {
+            self.onStep = onStep
+        }
+
+        func attach(to view: NSView) {
+            detach()
+            observedView = view
+            localMonitor = NSEvent.addLocalMonitorForEvents(matching: [.scrollWheel]) { [weak self] event in
+                guard let self else { return event }
+                if self.handle(event) {
+                    return nil
+                }
+                return event
+            }
+        }
+
+        func detach() {
+            if let localMonitor {
+                NSEvent.removeMonitor(localMonitor)
+                self.localMonitor = nil
+            }
+            observedView = nil
+            accumulatedDelta = 0
+        }
+
+        private func handle(_ event: NSEvent) -> Bool {
+            guard isEnabled else {
+                accumulatedDelta = 0
+                return false
+            }
+            guard isCursorInsideObservedView(using: event) else {
+                accumulatedDelta = 0
+                return false
+            }
+
+            let rawDelta = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY : event.deltaY * 8
+            guard abs(rawDelta) > noiseThreshold else { return false }
+
+            accumulatedDelta += rawDelta
+            var didStep = false
+
+            while abs(accumulatedDelta) >= stepThreshold {
+                let direction = accumulatedDelta > 0 ? 1 : -1
+                onStep(direction)
+                accumulatedDelta += accumulatedDelta > 0 ? -stepThreshold : stepThreshold
+                didStep = true
+            }
+
+            if event.phase == .ended || event.momentumPhase == .ended {
+                accumulatedDelta = 0
+            }
+
+            return didStep
+        }
+
+        private func isCursorInsideObservedView(using event: NSEvent) -> Bool {
+            guard let view = observedView, let window = view.window else { return false }
+
+            let screenPoint: NSPoint
+            if let eventWindow = event.window {
+                let rect = NSRect(origin: event.locationInWindow, size: .zero)
+                screenPoint = eventWindow.convertToScreen(rect).origin
+            } else {
+                screenPoint = NSEvent.mouseLocation
+            }
+
+            let windowPoint = window.convertPoint(fromScreen: screenPoint)
+            let localPoint = view.convert(windowPoint, from: nil)
+            return view.bounds.contains(localPoint)
+        }
+    }
+}
+#endif
 
 #Preview {
     NotchTimerView()
