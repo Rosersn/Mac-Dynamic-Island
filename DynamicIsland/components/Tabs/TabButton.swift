@@ -55,9 +55,9 @@ struct TabButton: View {
         Button(action: onClick) {
             Image(systemName: icon)
                 .font(.system(size: 13, weight: isHovering ? .semibold : .regular))
-                .scaleEffect(isHovering ? 1.06 : 1.0)
+                .scaleEffect(isHovering ? 1.04 : 1.0)
                 .padding(.horizontal, horizontalPadding)
-                .padding(.vertical, 6)
+                .padding(.vertical, 4)
                 .background {
                     Capsule()
                         .fill(Color.white.opacity(hoverFillOpacity))
