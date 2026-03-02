@@ -57,6 +57,7 @@ struct NotchMuseView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: isSidebarCollapsed)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environment(\.colorScheme, .dark)
     }
 
     private var header: some View {
@@ -98,7 +99,7 @@ struct NotchMuseView: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(Color.white.opacity(0.03))
+        .background(Color.white.opacity(0.06))
     }
 }
 

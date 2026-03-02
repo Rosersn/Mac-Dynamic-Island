@@ -58,7 +58,7 @@ struct MuseInputBar: View {
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
-            .background(Color.white.opacity(0.08))
+            .background(Color.white.opacity(0.12))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .padding(12)
@@ -89,7 +89,7 @@ struct MuseInputBar: View {
                     }
                     .padding(.horizontal, 8)
                     .padding(.vertical, 5)
-                    .background(Color.white.opacity(0.07))
+                    .background(Color.white.opacity(0.12))
                     .clipShape(Capsule())
                 }
             }

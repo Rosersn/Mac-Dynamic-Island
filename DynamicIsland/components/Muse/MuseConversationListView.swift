@@ -38,7 +38,7 @@ struct MuseConversationListView: View {
                 .padding(8)
             }
         }
-        .background(Color.white.opacity(0.03))
+        .background(Color.white.opacity(0.06))
     }
 
     private var header: some View {
@@ -99,7 +99,7 @@ struct MuseConversationListView: View {
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .background(isSelected ? Color.blue.opacity(0.2) : Color.white.opacity(0.04))
+        .background(isSelected ? Color.blue.opacity(0.25) : Color.white.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 }

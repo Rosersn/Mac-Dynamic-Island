@@ -84,6 +84,7 @@ struct NotchTimerView: View {
                 lockAccentColorIfNeeded()
             }
         }
+        .environment(\.colorScheme, .dark)
     }
 
     private var leftColumn: some View {
@@ -749,17 +750,17 @@ private struct TimerPresetCard: View {
                         .lineLimit(1)
                     Text(preset.formattedDuration)
                         .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.white.opacity(0.72))
                 }
-                .foregroundStyle(preset.color)
+                .foregroundStyle(readablePresetColor)
 
                 Spacer()
 
                 Image(systemName: isActive ? "checkmark" : "play.fill")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(isActive ? preset.color : Color.secondary)
+                    .foregroundStyle(isActive ? readablePresetColor : Color.white.opacity(0.92))
                     .padding(6)
-                    .background(isActive ? preset.color.opacity(0.2) : Color.white.opacity(0.08))
+                    .background(isActive ? readablePresetColor.opacity(0.24) : Color.white.opacity(isHovering ? 0.2 : 0.14))
                     .clipShape(Circle())
             }
             .padding(.horizontal, 12)
@@ -783,16 +784,20 @@ private struct TimerPresetCard: View {
 
     private var cardBackgroundColor: Color {
         if isActive {
-            return preset.color.opacity(isHovering ? 0.2 : 0.12)
+            return readablePresetColor.opacity(isHovering ? 0.22 : 0.14)
         }
-        return Color.white.opacity(isHovering ? 0.1 : 0.04)
+        return Color.white.opacity(isHovering ? 0.14 : 0.08)
     }
 
     private var cardStrokeColor: Color {
         if isActive {
-            return preset.color.opacity(isHovering ? 0.6 : 0.3)
+            return readablePresetColor.opacity(isHovering ? 0.64 : 0.35)
         }
-        return Color.white.opacity(isHovering ? 0.2 : 0.06)
+        return Color.white.opacity(isHovering ? 0.24 : 0.1)
+    }
+
+    private var readablePresetColor: Color {
+        preset.color.ensureMinimumBrightness(factor: 0.7)
     }
 }
 

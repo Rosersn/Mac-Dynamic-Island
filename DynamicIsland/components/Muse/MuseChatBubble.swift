@@ -31,7 +31,7 @@ struct MuseChatBubble: View {
         if isSystemMessage {
             Text(message.content)
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.72))
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .frame(maxWidth: .infinity)
@@ -90,24 +90,24 @@ struct MuseChatBubble: View {
 
             Text(message.timestamp, style: .time)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.65))
 
             if message.state == .thinking {
                 Text("Thinking")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.65))
             } else if message.state == .streaming {
                 Text("Streaming")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.65))
             } else if message.state == .toolCalling {
                 Text("Tool Running")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.65))
             } else if message.state == .stopped {
                 Text("Stopped")
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.65))
             }
         }
     }
@@ -133,15 +133,15 @@ struct MuseChatBubble: View {
             if showThinking {
                 MuseMarkdownText(content: text)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.white.opacity(0.72))
                     .padding(8)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color.white.opacity(0.05))
+                    .background(Color.white.opacity(0.10))
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
         }
         .padding(8)
-        .background(Color.white.opacity(0.04))
+        .background(Color.white.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
@@ -157,20 +157,20 @@ struct MuseChatBubble: View {
                         if !call.arguments.isEmpty {
                             Text(call.arguments)
                                 .font(.caption2)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.white.opacity(0.72))
                                 .lineLimit(2)
                         }
                         if let result = call.result, !result.isEmpty {
                             Text(result)
                                 .font(.caption2)
-                                .foregroundStyle(call.state == .error ? .red : .secondary)
+                                .foregroundStyle(call.state == .error ? .red : .white.opacity(0.72))
                                 .lineLimit(3)
                         }
                     }
                     Spacer()
                 }
                 .padding(8)
-                .background(Color.white.opacity(0.05))
+                .background(Color.white.opacity(0.10))
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
         }
@@ -187,19 +187,19 @@ struct MuseChatBubble: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(Color.gray.opacity(0.18))
+            .background(Color.white.opacity(0.16))
             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         } else {
             MuseMarkdownText(content: message.content)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 10)
-                .foregroundStyle(isUser ? .white : .primary)
+                .foregroundStyle(isUser ? .white : .white.opacity(0.94))
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
                         .fill(
                             isUser
                                 ? Color.blue
-                                : (isToolMessage ? Color.orange.opacity(0.18) : Color.white.opacity(0.12))
+                                : (isToolMessage ? Color.orange.opacity(0.26) : Color.white.opacity(0.18))
                         )
                 )
         }

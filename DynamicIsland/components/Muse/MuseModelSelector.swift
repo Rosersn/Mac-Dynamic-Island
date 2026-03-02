@@ -69,7 +69,7 @@ struct MuseModelSelector: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 4)
-            .background(Color.white.opacity(0.08))
+            .background(Color.white.opacity(0.12))
             .clipShape(Capsule())
         }
         .menuStyle(.borderlessButton)

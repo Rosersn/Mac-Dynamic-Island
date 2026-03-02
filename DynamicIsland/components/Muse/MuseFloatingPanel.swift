@@ -448,6 +448,7 @@ struct MuseFloatingPanelView: View {
                 .opacity(isNearResizeEdge ? 1 : 0)
                 .animation(.easeInOut(duration: 0.14), value: isNearResizeEdge)
         }
+        .environment(\.colorScheme, .dark)
     }
 
     private func resizeHint() -> some View {
@@ -455,7 +456,7 @@ struct MuseFloatingPanelView: View {
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(.secondary)
             .padding(8)
-            .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .padding(8)
             .allowsHitTesting(false)
     }
