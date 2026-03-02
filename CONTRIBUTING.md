@@ -1,10 +1,10 @@
 <p align="center">
-	<img src=".github/assets/atoll-logo.png" alt="Atoll logo" width="100">
+	<img src=".github/assets/notchi-logo.png" alt="Notchi logo" width="100">
 </p>
 
-# Contributing to Atoll
+# Contributing to Notchi
 
-Thank you for your interest in contributing to Atoll! We welcome contributions from everyone—developers, designers, testers, and documentation writers. Please read the following guidelines to help us maintain a collaborative and high-quality project.
+Thank you for your interest in contributing to Notchi! We welcome contributions from everyone—developers, designers, testers, and documentation writers. Please read the following guidelines to help us maintain a collaborative and high-quality project.
 
 ## Table of Contents
 - [How to Contribute](#how-to-contribute)
@@ -94,4 +94,4 @@ We are committed to fostering a welcoming and inclusive environment. Please read
 
 ---
 
-Thank you for helping make Atoll better!
+Thank you for helping make Notchi better!

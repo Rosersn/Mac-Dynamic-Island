@@ -1,6 +1,6 @@
 /*
- * Atoll (DynamicIsland)
- * Copyright (C) 2024-2026 Atoll Contributors
+ * Notchi (DynamicIsland)
+ * Copyright (C) 2024-2026 Notchi Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ import AppKit
 import Foundation
 import AtollExtensionKit
 
-/// Shared constants for the Atoll extension XPC service.
+/// Shared constants for the Notchi extension XPC service.
 enum ExtensionXPCServiceConstants {
-    static let machServiceName = "com.ebullioscopic.Atoll.xpc"
+    static let machServiceName = "com.ebullioscopic.Notchi.xpc"
 }
 
 @MainActor
@@ -50,14 +50,14 @@ final class ExtensionXPCServiceHost: NSObject, NSXPCListenerDelegate {
         self.listener = listener
         listener.resume()
 
-        Logger.log("Started Atoll XPC listener", category: .extensions)
+        Logger.log("Started Notchi XPC listener", category: .extensions)
     }
 
     func stop() {
         listener?.invalidate()
         listener = nil
         clientContexts.removeAll()
-        Logger.log("Stopped Atoll XPC listener", category: .extensions)
+        Logger.log("Stopped Notchi XPC listener", category: .extensions)
     }
 
     func listener(_ listener: NSXPCListener, shouldAcceptNewConnection connection: NSXPCConnection) -> Bool {

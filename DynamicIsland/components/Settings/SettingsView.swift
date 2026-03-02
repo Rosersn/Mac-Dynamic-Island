@@ -64,7 +64,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .battery: return "Battery"
         case .stats: return "Stats"
         case .clipboard: return "Clipboard"
-        case .muse: return "Muse"
+        case .muse: return "Notchi AI"
         case .colorPicker: return "Color Picker"
         case .downloads: return "Downloads"
         case .shelf: return "Shelf"
@@ -89,7 +89,7 @@ private enum SettingsTab: String, CaseIterable, Identifiable {
         case .battery: return "battery.100.bolt"
         case .stats: return "chart.xyaxis.line"
         case .clipboard: return "clipboard"
-        case .muse: return "sailboat.fill"
+        case .muse: return "sparkles"
         case .colorPicker: return "eyedropper"
         case .downloads: return "square.and.arrow.down"
         case .shelf: return "books.vertical"
@@ -778,8 +778,8 @@ struct SettingsView: View {
             SettingsSearchEntry(tab: .clipboard, title: "History Size", keywords: ["history", "clipboard"], highlightID: SettingsTab.clipboard.highlightID(for: "History Size")),
 
             // Muse
-            SettingsSearchEntry(tab: .muse, title: "Enable Muse", keywords: ["muse", "ai", "assistant"], highlightID: SettingsTab.muse.highlightID(for: "Enable Muse")),
-            SettingsSearchEntry(tab: .muse, title: "Model", keywords: ["muse", "model"], highlightID: SettingsTab.muse.highlightID(for: "Model")),
+            SettingsSearchEntry(tab: .muse, title: "Enable Notchi AI", keywords: ["notchi", "ai", "assistant"], highlightID: SettingsTab.muse.highlightID(for: "Enable Notchi AI")),
+            SettingsSearchEntry(tab: .muse, title: "Model", keywords: ["notchi", "ai", "model"], highlightID: SettingsTab.muse.highlightID(for: "Model")),
 
             // Color Picker
             SettingsSearchEntry(tab: .colorPicker, title: "Enable Color Picker", keywords: ["color picker", "eyedropper"], highlightID: SettingsTab.colorPicker.highlightID(for: "Enable Color Picker")),
@@ -5170,10 +5170,10 @@ struct Shortcuts: View {
                 Section {
                     HStack {
                         VStack(alignment: .leading) {
-                            KeyboardShortcuts.Recorder("Muse Panel:", name: .musePanel)
+                            KeyboardShortcuts.Recorder("Notchi AI Panel:", name: .musePanel)
                                 .disabled(!enableShortcuts || !Defaults[.enableMuse])
                             if !Defaults[.enableMuse] {
-                                Text("Muse feature is disabled")
+                                Text("Notchi AI feature is disabled")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                                     .padding(.top, 2)
@@ -5182,9 +5182,9 @@ struct Shortcuts: View {
                         Spacer()
                     }
                 } header: {
-                    Text("Muse")
+                    Text("Notchi AI")
                 } footer: {
-                    Text("Opens the floating Muse panel. Default is Option+Space. You can also enable double Option in Muse settings.")
+                    Text("Opens the floating Notchi AI panel. Default is Option+Space. You can also enable double Option in Notchi AI settings.")
                         .multilineTextAlignment(.trailing)
                         .foregroundStyle(.secondary)
                         .font(.caption)
@@ -6330,12 +6330,12 @@ struct MuseSettings: View {
     var body: some View {
         Form {
             Section {
-                Defaults.Toggle("Enable Muse", key: .enableMuse)
-                    .settingsHighlight(id: highlightID("Enable Muse"))
+                Defaults.Toggle("Enable Notchi AI", key: .enableMuse)
+                    .settingsHighlight(id: highlightID("Enable Notchi AI"))
             } header: {
-                Text("Muse")
+                Text("Notchi AI")
             } footer: {
-                Text("Muse is your intelligent companion, flowing intuitively from the notch to a floating vista, making every AI interaction effortless and inspiring.")
+                Text("Your intelligent companion, flowing intuitively from the notch to a floating panel, making every AI interaction effortless.")
             }
 
             if enableMuse {
@@ -6349,7 +6349,7 @@ struct MuseSettings: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("Muse")
+        .navigationTitle("Notchi AI")
         .onAppear {
             if selectedModel == nil || !selectedProvider.supportedModels.contains(where: { $0.id == selectedModel?.id }) {
                 selectedModel = selectedProvider.supportedModels.first
@@ -6457,7 +6457,7 @@ struct MuseSettings: View {
     private var notchLayoutSection: some View {
         Section {
             HStack {
-                Text("Muse Notch Height")
+                Text("Notchi AI Notch Height")
                 Spacer()
                 Text("\(Int(museNotchHeight))")
                     .foregroundStyle(.secondary)
@@ -6466,7 +6466,7 @@ struct MuseSettings: View {
         } header: {
             Text("Notch Layout")
         } footer: {
-            Text("Controls the open notch height when Muse tab is active.")
+            Text("Controls the open notch height when Notchi AI tab is active.")
         }
     }
 

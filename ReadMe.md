@@ -1,7 +1,7 @@
 <p align="center">
-  <img src=".github/assets/atoll-logo.png" alt="Atoll logo" width="120">
+  <img src=".github/assets/notchi-logo.png" alt="Notchi logo" width="120">
 </p>
-<h1 align="center">Atoll - DynamicIsland for macOS</h1>
+<h1 align="center">Notchi - DynamicIsland for macOS</h1>
 <p align="center">
 <a href="https://trendshift.io/repositories/15291" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15291" alt="Ebullioscopic%2FAtoll | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
 </p>
@@ -25,7 +25,7 @@
     <img src="https://img.shields.io/badge/Sponsor-Ebullioscopic-ff69b4?style=for-the-badge&logo=github" alt="Sponsor Ebullioscopic"/>
   </a>
   <a href="https://github.com/Ebullioscopic/Atoll/releases/download/v1.3.0-beta/Atoll.1.3.0-beta.dmg">
-    <img src="https://img.shields.io/badge/Download-Atoll%20for%20macOS-0A84FF?style=for-the-badge&logo=apple" alt="Download Atoll for macOS"/>
+    <img src="https://img.shields.io/badge/Download-Notchi%20for%20macOS-0A84FF?style=for-the-badge&logo=apple" alt="Download Notchi for macOS"/>
   </a>
   <a href="https://www.buymeacoffee.com/kryoscopic">
     <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-kryoscopic-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=000000" alt="Buy Me a Coffee for kryoscopic"/>
@@ -36,10 +36,10 @@
   <a href="https://discord.gg/PaqFkRTDF8">Join our Discord community</a>
 </p>
 
-Atoll turns the MacBook notch into a focused command surface for media, system insight, and quick utilities. It stays out of the way until needed, then expands with responsive, native SwiftUI animations.
+Notchi turns the MacBook notch into a focused command surface for media, system insight, and quick utilities. It stays out of the way until needed, then expands with responsive, native SwiftUI animations.
 
 <p align="center">
-  <img src="https://i.postimg.cc/jjLLH6Gs/3DAB6C3C-FEA1-4C90-ACEE-0BC4469B929C-1-201-a.jpg" alt="Atoll lock screen" width="920">
+  <img src="https://i.postimg.cc/jjLLH6Gs/3DAB6C3C-FEA1-4C90-ACEE-0BC4469B929C-1-201-a.jpg" alt="Notchi lock screen" width="920">
 </p>
 
 
@@ -59,7 +59,7 @@ Atoll turns the MacBook notch into a focused command surface for media, system i
 - Lock screen appearance and positioning controls for panels and widgets.
 
 <p align="center">
-  <img src="https://i.postimg.cc/HkLGn6yH/846F86A4_A2F9_4CD6_BC84_1D720D377728_1_201_a.jpg" alt="Atoll preview" width="920">
+  <img src="https://i.postimg.cc/HkLGn6yH/846F86A4_A2F9_4CD6_BC84_1D720D377728_1_201_a.jpg" alt="Notchi preview" width="920">
 </p>
 
 ## Requirements
@@ -70,8 +70,8 @@ Atoll turns the MacBook notch into a focused command surface for media, system i
 
 ## Installation
 1) Download the latest DMG: https://github.com/Ebullioscopic/Atoll/releases/download/v1.3.0-beta/Atoll.1.3.0-beta.dmg
-2) Open the DMG and drag Atoll into Applications.
-3) Launch Atoll and grant the requested permissions.
+2) Open the DMG and drag Notchi into Applications.
+3) Launch Notchi and grant the requested permissions.
 
 ## Quick Start
 - Hover near the notch to expand; click to enter controls.
@@ -95,15 +95,15 @@ Atoll turns the MacBook notch into a focused command surface for media, system i
 - Media not responding: verify player is active and Music permission is granted.
 
 ## License
-Atoll is released under the GPL v3 License. Refer to [LICENSE](LICENSE) for the full terms.
+Notchi is released under the GPL v3 License. Refer to [LICENSE](LICENSE) for the full terms.
 
 ## Acknowledgments
 
-Atoll builds upon the work of several open-source projects and draws inspiration from innovative macOS applications:
+Notchi builds upon the work of several open-source projects and draws inspiration from innovative macOS applications:
 
 - [**Boring.Notch**](https://github.com/TheBoredTeam/boring.notch) - foundational codebase that provided the initial media player integration, AirDrop surface implementation, file dock functionality, and calendar event display. Major architectural patterns and notch interaction models were adapted from this project.
 
-- [**Alcove**](https://tryalcove.com) - primary inspiration for the Minimalistic Mode interface design and the conceptual framework for lock screen widget integration that informed Atoll's compact layout strategy.
+- [**Alcove**](https://tryalcove.com) - primary inspiration for the Minimalistic Mode interface design and the conceptual framework for lock screen widget integration that informed Notchi's compact layout strategy.
 
 - [**Stats**](https://github.com/exelban/stats) - source implementation for CPU temperature monitoring via SMC (System Management Controller) access, frequency sampling through IOReport bindings, and per-core CPU utilisation tracking. The system metrics collection architecture derives from Stats project readers.
 
@@ -123,13 +123,13 @@ Atoll builds upon the work of several open-source projects and draws inspiration
 [![Star History Chart](https://api.star-history.com/svg?repos=Ebullioscopic/Atoll&type=timeline&legend=top-left)](https://www.star-history.com/#Ebullioscopic/Atoll&type=timeline&legend=top-left)
 
 ## Updating Existing Clones
-If you previously cloned DynamicIsland, update the remote to track the Atoll repository:
+If you previously cloned DynamicIsland, update the remote to track the repository:
 
 ```bash
 git remote set-url origin https://github.com/Ebullioscopic/Atoll.git
 ```
 
-A heartfelt thanks to [TheBoredTeam](https://github.com/TheBoredTeam) for being supportive and being totally awesome, Atoll would not have been possible without Boring.Notch
+A heartfelt thanks to [TheBoredTeam](https://github.com/TheBoredTeam) for being supportive and being totally awesome, Notchi would not have been possible without Boring.Notch
 
 ---
 

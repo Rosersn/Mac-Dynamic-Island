@@ -1,9 +1,9 @@
 /*
- * Atoll (DynamicIsland)
- * Copyright (C) 2024-2026 Atoll Contributors
+ * Notchi (DynamicIsland)
+ * Copyright (C) 2024-2026 Notchi Contributors
  *
  * Originally from boring.notch project
- * Modified and adapted for Atoll (DynamicIsland)
+ * Modified and adapted for Notchi (DynamicIsland)
  * See NOTICE for details.
  *
  * This program is free software: you can redistribute it and/or modify
@@ -73,7 +73,7 @@ struct TabSelectionView: View {
         }
 
         if enableMuse {
-            tabsArray.append(TabModel(label: "Muse", icon: "sailboat.fill", view: .muse))
+            tabsArray.append(TabModel(label: "Notchi AI", icon: "sparkles", view: .muse))
         }
 
         if Defaults[.dynamicShelf] {

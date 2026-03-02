@@ -1,6 +1,6 @@
 /*
- * Atoll (DynamicIsland)
- * Copyright (C) 2024-2026 Atoll Contributors
+ * Notchi (DynamicIsland)
+ * Copyright (C) 2024-2026 Notchi Contributors
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ struct ProfileSelectionView: View {
             id: "developer",
             name: String(localized: "Developer"),
             icon: "terminal.fill",
-            description: String(localized: "Code and debug with color picker, stats monitoring, and Muse."),
+            description: String(localized: "Code and debug with color picker, stats monitoring, and Notchi AI."),
             gradient: [Color.blue, Color.purple]
         ),
         UserProfile(
