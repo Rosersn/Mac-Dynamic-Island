@@ -989,6 +989,7 @@ extension Defaults.Keys {
     static let museFloatingPanelDefaultPosition = Key<MuseFloatingPanelDefaultPosition>("museFloatingPanelDefaultPosition", default: .bottomRight)
     static let museFloatingPanelRememberLastPosition = Key<Bool>("museFloatingPanelRememberLastPosition", default: true)
     static let museFloatingPanelEdgeInset = Key<CGFloat>("museFloatingPanelEdgeInset", default: 24)
+    static let museSidebarCollapsed = Key<Bool>("museSidebarCollapsed", default: false)
     static let museSystemPrompt = Key<String>("museSystemPrompt", default: "")
     static let museQuickPrompts = Key<[String]>("museQuickPrompts", default: [
         String(localized: "Help me write an email"),

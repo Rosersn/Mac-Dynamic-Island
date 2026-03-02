@@ -21,7 +21,7 @@ import SwiftUI
 
 struct NotchMuseView: View {
     @ObservedObject private var museManager = MuseManager.shared
-    @State private var isSidebarCollapsed = false
+    @Default(.museSidebarCollapsed) private var isSidebarCollapsed
     @Default(.selectedAIProvider) private var selectedProvider
     @Default(.selectedAIModel) private var selectedModel
 

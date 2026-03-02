@@ -40,6 +40,7 @@ final class MuseFloatingPanel: NSPanel, NSWindowDelegate {
     private let museManager = MuseManager.shared
     private var isApplyingProgrammaticFrame = false
     private var isSynchronizingSizeFromResize = false
+    private var pendingPositionSaveWorkItem: DispatchWorkItem?
 
     init() {
         super.init(
@@ -76,6 +77,7 @@ final class MuseFloatingPanel: NSPanel, NSWindowDelegate {
         delegate = self
 
         ScreenCaptureVisibilityManager.shared.register(self, scope: .panelsOnly)
+        acceptsMouseMovedEvents = true
     }
 
     private func setupContentView() {
@@ -120,7 +122,8 @@ final class MuseFloatingPanel: NSPanel, NSWindowDelegate {
     override func setFrameOrigin(_ point: NSPoint) {
         super.setFrameOrigin(point)
         guard !isApplyingProgrammaticFrame else { return }
-        persistCurrentOriginIfNeeded(point)
+        guard !inLiveResize else { return }
+        scheduleCurrentOriginPersistenceIfNeeded(point)
     }
 
     override func close() {
@@ -200,7 +203,20 @@ final class MuseFloatingPanel: NSPanel, NSWindowDelegate {
 
     private func persistCurrentOriginIfNeeded(_ point: CGPoint) {
         guard Defaults[.museFloatingPanelRememberLastPosition] else { return }
+        pendingPositionSaveWorkItem?.cancel()
+        pendingPositionSaveWorkItem = nil
         savePosition(point)
+    }
+
+    private func scheduleCurrentOriginPersistenceIfNeeded(_ point: CGPoint, delay: TimeInterval = 0.12) {
+        guard Defaults[.museFloatingPanelRememberLastPosition] else { return }
+        pendingPositionSaveWorkItem?.cancel()
+
+        let workItem = DispatchWorkItem { [weak self] in
+            self?.savePosition(point)
+        }
+        pendingPositionSaveWorkItem = workItem
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
     }
 
     private func syncSizeDefaultsFromCurrentFrame() {
@@ -365,7 +381,8 @@ final class MuseFloatingPanel: NSPanel, NSWindowDelegate {
 
     func windowDidMove(_ notification: Notification) {
         guard !isApplyingProgrammaticFrame else { return }
-        persistCurrentOriginIfNeeded(frame.origin)
+        guard !inLiveResize else { return }
+        scheduleCurrentOriginPersistenceIfNeeded(frame.origin)
     }
 
     func windowDidResize(_ notification: Notification) {
@@ -378,20 +395,19 @@ final class MuseFloatingPanel: NSPanel, NSWindowDelegate {
     func windowDidEndLiveResize(_ notification: Notification) {
         guard !isApplyingProgrammaticFrame else { return }
         syncSizeDefaultsFromCurrentFrame()
+        persistCurrentOriginIfNeeded(frame.origin)
     }
 
     deinit {
+        pendingPositionSaveWorkItem?.cancel()
         ScreenCaptureVisibilityManager.shared.unregister(self)
     }
 }
 
 struct MuseFloatingPanelView: View {
     @ObservedObject private var museManager = MuseManager.shared
-    @Default(.museFloatingPanelWidth) private var museFloatingPanelWidth
-    @Default(.museFloatingPanelCompactHeight) private var museFloatingPanelCompactHeight
-    @Default(.museFloatingPanelExpandedHeight) private var museFloatingPanelExpandedHeight
     let onClose: () -> Void
-    @State private var resizeDragStart: CGSize?
+    @State private var isNearResizeEdge = false
 
     var body: some View {
         let hasMessages = !(museManager.currentConversation?.messages.isEmpty ?? true)
@@ -424,68 +440,136 @@ struct MuseFloatingPanelView: View {
             MuseInputBar(compact: !hasMessages)
         }
         .background(MusePanelVisualEffectView(material: .hudWindow, blendingMode: .behindWindow))
+        .overlay {
+            MusePanelEdgeProximityTracker(edgeThreshold: 18, isNearEdge: $isNearResizeEdge)
+        }
         .overlay(alignment: .bottomTrailing) {
-            resizeHandle(hasMessages: hasMessages)
+            resizeHint()
+                .opacity(isNearResizeEdge ? 1 : 0)
+                .animation(.easeInOut(duration: 0.14), value: isNearResizeEdge)
         }
     }
 
-    @ViewBuilder
-    private func resizeHandle(hasMessages: Bool) -> some View {
+    private func resizeHint() -> some View {
         Image(systemName: "arrow.up.left.and.arrow.down.right")
             .font(.system(size: 11, weight: .semibold))
             .foregroundStyle(.secondary)
             .padding(8)
             .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
             .padding(8)
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 2)
-                    .onChanged { value in
-                        if resizeDragStart == nil {
-                            let currentHeight = hasMessages
-                                ? museFloatingPanelExpandedHeight
-                                : museFloatingPanelCompactHeight
-                            resizeDragStart = CGSize(width: museFloatingPanelWidth, height: currentHeight)
-                        }
+            .allowsHitTesting(false)
+    }
+}
 
-                        guard let start = resizeDragStart else { return }
-                        let nextWidth = min(
-                            max(start.width + value.translation.width, MuseFloatingPanelSizing.minWidth),
-                            MuseFloatingPanelSizing.maxWidth
-                        )
-                        museFloatingPanelWidth = nextWidth
+private struct MusePanelEdgeProximityTracker: NSViewRepresentable {
+    let edgeThreshold: CGFloat
+    @Binding var isNearEdge: Bool
 
-                        if hasMessages {
-                            let minExpanded = max(
-                                MuseFloatingPanelSizing.minExpandedHeight,
-                                museFloatingPanelCompactHeight + MuseFloatingPanelSizing.minExpandedDelta
-                            )
-                            let nextExpanded = min(
-                                max(start.height - value.translation.height, minExpanded),
-                                MuseFloatingPanelSizing.maxExpandedHeight
-                            )
-                            museFloatingPanelExpandedHeight = nextExpanded
-                        } else {
-                            let nextCompact = min(
-                                max(start.height - value.translation.height, MuseFloatingPanelSizing.minCompactHeight),
-                                MuseFloatingPanelSizing.maxCompactHeight
-                            )
-                            museFloatingPanelCompactHeight = nextCompact
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isNearEdge: $isNearEdge)
+    }
 
-                            let minimumExpanded = max(
-                                MuseFloatingPanelSizing.minExpandedHeight,
-                                nextCompact + MuseFloatingPanelSizing.minExpandedDelta
-                            )
-                            if museFloatingPanelExpandedHeight < minimumExpanded {
-                                museFloatingPanelExpandedHeight = minimumExpanded
-                            }
-                        }
-                    }
-                    .onEnded { _ in
-                        resizeDragStart = nil
-                    }
-            )
-            .help(String(localized: "Drag to resize panel"))
+    func makeNSView(context: Context) -> MusePanelMouseTrackingView {
+        let view = MusePanelMouseTrackingView()
+        let coordinator = context.coordinator
+        view.edgeThreshold = edgeThreshold
+        view.onEdgeProximityChanged = { nearEdge in
+            coordinator.setNearEdge(nearEdge)
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: MusePanelMouseTrackingView, context: Context) {
+        let coordinator = context.coordinator
+        nsView.edgeThreshold = edgeThreshold
+        nsView.onEdgeProximityChanged = { nearEdge in
+            coordinator.setNearEdge(nearEdge)
+        }
+    }
+
+    final class Coordinator {
+        private var isNearEdge: Binding<Bool>
+
+        init(isNearEdge: Binding<Bool>) {
+            self.isNearEdge = isNearEdge
+        }
+
+        func setNearEdge(_ nearEdge: Bool) {
+            guard isNearEdge.wrappedValue != nearEdge else { return }
+            isNearEdge.wrappedValue = nearEdge
+        }
+    }
+}
+
+private final class MusePanelMouseTrackingView: NSView {
+    var edgeThreshold: CGFloat = 18
+    var onEdgeProximityChanged: ((Bool) -> Void)?
+
+    private var trackingAreaRef: NSTrackingArea?
+    private var lastNearEdge = false
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        layer?.backgroundColor = NSColor.clear.cgColor
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        nil
+    }
+
+    override func updateTrackingAreas() {
+        super.updateTrackingAreas()
+        if let trackingAreaRef {
+            removeTrackingArea(trackingAreaRef)
+        }
+
+        let options: NSTrackingArea.Options = [
+            .inVisibleRect,
+            .activeAlways,
+            .mouseMoved,
+            .mouseEnteredAndExited
+        ]
+        let area = NSTrackingArea(rect: .zero, options: options, owner: self, userInfo: nil)
+        addTrackingArea(area)
+        trackingAreaRef = area
+    }
+
+    override func mouseEntered(with event: NSEvent) {
+        updateEdgeProximity(using: event)
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        updateEdgeProximity(using: event)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        publishIfChanged(false)
+    }
+
+    private func updateEdgeProximity(using event: NSEvent) {
+        guard bounds.width > 0, bounds.height > 0 else {
+            publishIfChanged(false)
+            return
+        }
+
+        let location = convert(event.locationInWindow, from: nil)
+        let nearEdge = location.x <= edgeThreshold
+            || location.x >= bounds.width - edgeThreshold
+            || location.y <= edgeThreshold
+            || location.y >= bounds.height - edgeThreshold
+        publishIfChanged(nearEdge)
+    }
+
+    private func publishIfChanged(_ nearEdge: Bool) {
+        guard nearEdge != lastNearEdge else { return }
+        lastNearEdge = nearEdge
+        onEdgeProximityChanged?(nearEdge)
     }
 }
 
@@ -520,19 +604,19 @@ final class MuseFloatingPanelManager: ObservableObject {
 
         Defaults.publisher(.museFloatingPanelWidth)
             .sink { [weak self] _ in
-                self?.refreshPanelLayout(animated: true)
+                self?.refreshPanelLayout(animated: false)
             }
             .store(in: &cancellables)
 
         Defaults.publisher(.museFloatingPanelCompactHeight)
             .sink { [weak self] _ in
-                self?.refreshPanelLayout(animated: true)
+                self?.refreshPanelLayout(animated: false)
             }
             .store(in: &cancellables)
 
         Defaults.publisher(.museFloatingPanelExpandedHeight)
             .sink { [weak self] _ in
-                self?.refreshPanelLayout(animated: true)
+                self?.refreshPanelLayout(animated: false)
             }
             .store(in: &cancellables)
 
