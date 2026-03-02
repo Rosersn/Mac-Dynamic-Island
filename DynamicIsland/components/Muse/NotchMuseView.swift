@@ -20,10 +20,13 @@ import Defaults
 import SwiftUI
 
 struct NotchMuseView: View {
+    @EnvironmentObject var vm: DynamicIslandViewModel
     @ObservedObject private var museManager = MuseManager.shared
     @Default(.museSidebarCollapsed) private var isSidebarCollapsed
     @Default(.selectedAIProvider) private var selectedProvider
     @Default(.selectedAIModel) private var selectedModel
+    @State private var scrollGestureSuppressionToken = UUID()
+    @State private var isSuppressingScrollGestures = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -57,7 +60,19 @@ struct NotchMuseView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: isSidebarCollapsed)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onHover { hovering in
+            updateScrollGestureSuppression(for: hovering)
+        }
+        .onDisappear {
+            updateScrollGestureSuppression(for: false)
+        }
         .environment(\.colorScheme, .dark)
+    }
+
+    private func updateScrollGestureSuppression(for active: Bool) {
+        guard active != isSuppressingScrollGestures else { return }
+        isSuppressingScrollGestures = active
+        vm.setScrollGestureSuppression(active, token: scrollGestureSuppressionToken)
     }
 
     private var header: some View {

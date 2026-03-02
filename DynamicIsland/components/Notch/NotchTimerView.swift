@@ -43,6 +43,8 @@ struct NotchTimerView: View {
     @State private var lockedAccentColor: Color?
     @State private var isStartButtonHovering = false
     @State private var isResetButtonHovering = false
+    @State private var scrollGestureSuppressionToken = UUID()
+    @State private var isSuppressingScrollGestures = false
 
     var body: some View {
         Group {
@@ -83,6 +85,12 @@ struct NotchTimerView: View {
             if timerManager.isTimerActive && lockedAccentColor == nil {
                 lockAccentColorIfNeeded()
             }
+        }
+        .onHover { hovering in
+            updateScrollGestureSuppression(for: hovering)
+        }
+        .onDisappear {
+            updateScrollGestureSuppression(for: false)
         }
         .environment(\.colorScheme, .dark)
     }
@@ -377,6 +385,12 @@ struct NotchTimerView: View {
     private var maxTabContentHeight: CGFloat {
         let available = resolvedNotchHeight - headerHeight - 36
         return max(130, available)
+    }
+
+    private func updateScrollGestureSuppression(for active: Bool) {
+        guard active != isSuppressingScrollGestures else { return }
+        isSuppressingScrollGestures = active
+        vm.setScrollGestureSuppression(active, token: scrollGestureSuppressionToken)
     }
 
     private func lockAccentColorIfNeeded() {
