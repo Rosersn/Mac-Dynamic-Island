@@ -1189,7 +1189,7 @@ struct Downloads: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Download indicator style")
                         .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(.primary)
                     
                     HStack(spacing: 16) {
                         DownloadStyleButton(
@@ -2612,6 +2612,7 @@ struct About: View {
     @State private var showBuildNumber: Bool = false
     let updaterController: SPUStandardUpdaterController
     @Environment(\.openWindow) var openWindow
+    @Environment(\.colorScheme) private var colorScheme
     var body: some View {
         VStack {
             Form {
@@ -2643,35 +2644,54 @@ struct About: View {
 
                 UpdaterSettingsView(updater: updaterController.updater)
 
-                HStack(spacing: 30) {
-                    Spacer(minLength: 0)
+                HStack(spacing: 14) {
                     Button {
                         NSWorkspace.shared.open(sponsorPage)
                     } label: {
                         VStack(spacing: 5) {
                             Image(systemName: "cup.and.saucer.fill")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(supportForeground)
                             Text("Donate")
-                                .foregroundStyle(.white)
+                                .foregroundStyle(supportForeground)
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(supportCardBackground)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(supportCardBorder, lineWidth: 1)
+                        )
                         .contentShape(Rectangle())
                     }
-                    Spacer(minLength: 0)
                     Button {
                         NSWorkspace.shared.open(productPage)
                     } label: {
                         VStack(spacing: 5) {
                             Image("Github")
+                                .renderingMode(.template)
                                 .resizable()
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 18)
+                                .foregroundStyle(supportForeground)
                             Text("GitHub")
-                                .foregroundStyle(.white)
+                                .foregroundStyle(supportForeground)
                         }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(supportCardBackground)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(supportCardBorder, lineWidth: 1)
+                        )
                         .contentShape(Rectangle())
                     }
-                    Spacer(minLength: 0)
                 }
                 .buttonStyle(PlainButtonStyle())
                 Text("Your support funds software development learning for students in 9th–12th grade.")
@@ -2699,6 +2719,18 @@ struct About: View {
             CheckForUpdatesView(updater: updaterController.updater)
         }
         .navigationTitle("About")
+    }
+
+    private var supportForeground: Color {
+        colorScheme == .dark ? Color.white.opacity(0.95) : .primary
+    }
+
+    private var supportCardBackground: Color {
+        colorScheme == .dark ? Color.white.opacity(0.06) : Color.black.opacity(0.035)
+    }
+
+    private var supportCardBorder: Color {
+        colorScheme == .dark ? Color.white.opacity(0.16) : Color.black.opacity(0.1)
     }
 }
 
