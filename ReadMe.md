@@ -1,156 +1,135 @@
 <p align="center">
-  <img src=".github/assets/notchi-logo.png" alt="Notchi logo" width="120">
+  <img src="DynamicIsland/Assets.xcassets/logo.imageset/Notchi.png" alt="notchi logo" width="120" />
 </p>
-<h1 align="center">Notchi - DynamicIsland for macOS</h1>
+
+<h1 align="center">notchi · AI 优先的 macOS Dynamic Island</h1>
+
 <p align="center">
-<a href="https://trendshift.io/repositories/15291" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15291" alt="Ebullioscopic%2FAtoll | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
-<p align="center">
-  <a href="https://github.com/Ebullioscopic/Atoll/stargazers">
-    <img src="https://img.shields.io/github/stars/Ebullioscopic/Atoll?style=social" alt="GitHub stars"/>
-  </a>
-  <a href="https://github.com/Ebullioscopic/Atoll/network/members">
-    <img src="https://img.shields.io/github/forks/Ebullioscopic/Atoll?style=social" alt="GitHub forks"/>
-  </a>
-  <a href="https://github.com/Ebullioscopic/Atoll/releases">
-    <img src="https://img.shields.io/github/downloads/Ebullioscopic/Atoll/total?label=Downloads" alt="GitHub downloads"/>
-  </a>
-  <a href="https://discord.gg/PaqFkRTDF8">
-    <img src="https://dcbadge.limes.pink/api/server/https://discord.gg/PaqFkRTDF8?style=flat" alt="Discord server"/>
-  </a>
+  先是 AI 助手，再是系统信息中枢。让刘海从“显示区”变成“操作区”。
 </p>
 
 <p align="center">
-  <a href="https://github.com/sponsors/Ebullioscopic">
-    <img src="https://img.shields.io/badge/Sponsor-Ebullioscopic-ff69b4?style=for-the-badge&logo=github" alt="Sponsor Ebullioscopic"/>
-  </a>
-  <a href="https://github.com/Ebullioscopic/Atoll/releases/download/v1.3.0-beta/Atoll.1.3.0-beta.dmg">
-    <img src="https://img.shields.io/badge/Download-Notchi%20for%20macOS-0A84FF?style=for-the-badge&logo=apple" alt="Download Notchi for macOS"/>
-  </a>
-  <a href="https://www.buymeacoffee.com/kryoscopic">
-    <img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-kryoscopic-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=000000" alt="Buy Me a Coffee for kryoscopic"/>
-  </a>
+  <a href="https://github.com/Rosersn/Mac-Dynamic-Island">GitHub 仓库</a>
+  ·
+  <a href="https://github.com/Rosersn/Mac-Dynamic-Island/releases">Releases</a>
+  ·
+  <a href="https://github.com/Rosersn/Mac-Dynamic-Island/issues">问题反馈</a>
 </p>
 
-<p align="center">
-  <a href="https://discord.gg/PaqFkRTDF8">Join our Discord community</a>
-</p>
+## 核心定位
 
-Notchi turns the MacBook notch into a focused command surface for media, system insight, and quick utilities. It stays out of the way until needed, then expands with responsive, native SwiftUI animations.
+notchi 的核心不是把 iPhone 的 Dynamic Island 复刻到 Mac，而是把它做成一个随时可唤起的 AI 工作入口。  
+你可以在刘海里直接和模型对话，也可以用悬浮面板快速完成高频任务。
 
-<p align="center">
-  <img src="https://i.postimg.cc/jjLLH6Gs/3DAB6C3C-FEA1-4C90-ACEE-0BC4469B929C-1-201-a.jpg" alt="Notchi lock screen" width="920">
-</p>
+## Notchi AI（Muse）能力
 
+### 1) 多模型与多提供商
 
+- 内置支持：Gemini、OpenAI、Claude、DeepSeek
+- 本地模型：Ollama
+- 兼容端点：Custom OpenAI Compatible（GLM/Kimi/Groq/SiliconFlow 等）
+- 每个提供商可选不同模型，并支持切换思考模式（Thinking）
 
+### 2) 两种 AI 交互形态
 
-## Highlights
-- Media controls for Apple Music, Spotify, and more with inline previews.
-- Live Activities for media playback, Focus, screen recording, privacy indicators, downloads (beta), and battery/charging.
-- Lock screen widgets for media, timers, charging, Bluetooth devices, and weather.
-- Lightweight system insight for CPU, GPU, memory, network, and disk usage.
-- Productivity tools including timers, clipboard history, color picker, and calendar previews.
-- Customization for layouts, animations, hover behavior, and shortcut remapping.
+- 刘海内 `Notchi AI` 标签页
+- 独立悬浮面板（默认 `Option+Space`，可启用双击 Option）
+- 两种形态共享同一会话与模型设置
 
-## Other Features
-- Gesture controls for opening/closing the notch and media navigation.
-- Parallax hover interactions with smooth transitions.
-- Lock screen appearance and positioning controls for panels and widgets.
+### 3) 面向真实工作的输入方式
 
-<p align="center">
-  <img src="https://i.postimg.cc/HkLGn6yH/846F86A4_A2F9_4CD6_BC84_1D720D377728_1_201_a.jpg" alt="Notchi preview" width="920">
-</p>
+- 文本提问
+- 快速提示词（Quick Prompts）
+- 自定义系统提示词（System Prompt）
+- 文件附件（文档/图片/音频/视频）
+- 截图输入（区域 / 窗口 / 全屏）
+- 语音录音输入（自动保存为音频附件）
 
-## Requirements
-- macOS 14.0 or later (optimised for macOS 15+).
-- MacBook with a notch (14/16‑inch MBP across Apple silicon generations).
-- Xcode 15+ to build from source.
-- Permissions as needed: Accessibility, Camera, Calendar, Screen Recording, Music.
+### 4) Agent 体验
 
-## Installation
-1) Download the latest DMG: https://github.com/Ebullioscopic/Atoll/releases/download/v1.3.0-beta/Atoll.1.3.0-beta.dmg
-2) Open the DMG and drag Notchi into Applications.
-3) Launch Notchi and grant the requested permissions.
+- 流式输出
+- Thinking 过程展示
+- 工具调用过程可见（参数、结果、错误状态）
+- 支持手动中断生成
 
-## Quick Start
-- Hover near the notch to expand; click to enter controls.
-- Use tabs for Media, Stats, Timers, Clipboard, and more.
-- Adjust layout, appearance, and shortcuts from Settings.
+### 5) 内置工具（当前版本）
 
-## Settings
-- Choose appearance, animation style, and per‑feature toggles.
-- Remap global shortcuts and adjust hover behaviour.
-- Enable lock screen widgets and select data sources.
+- `take_screenshot`：让模型主动触发截图（area/window/full）
+- `current_time`：获取当前本地时间（ISO8601 + 本地格式）
 
-## Gesture Controls
-- Two-finger swipe down to open the notch when hover-to-open is disabled; swipe up to close.
-- Enable horizontal media gestures in **Settings → General → Gesture control** to turn the music pane into a trackpad for previous/next or ±10 second seeks.
-- Pick the gesture skip behaviour (track vs ±10s) independently from the skip button configuration so swipes can scrub while buttons change tracks—or vice versa.
-- Horizontal swipes trigger the same haptics and button animations you see in the notch, keeping visual feedback consistent with tap interactions.
+### 6) 会话与本地数据
 
-## Troubleshooting (Basics)
-- After granting Accessibility or Screen Recording, quit and relaunch the app.
-- If metrics are empty, enable categories in Settings → Stats.
-- Media not responding: verify player is active and Music permission is granted.
+- 会话按 JSON 持久化到本地 `Documents/MuseConversations`
+- 录音与截图分别保存到本地 `Documents/MuseAudio`、`Documents/MuseScreenshots`
 
-## License
-Notchi is released under the GPL v3 License. Refer to [LICENSE](LICENSE) for the full terms.
+## 60 秒上手 AI
 
-## Acknowledgments
+1. 打开设置 `Notchi AI`，启用功能
+2. 选择 Provider 和 Model
+3. 填入对应 API Key（或设置本地 Ollama 端点）
+4. 用 `Option+Space` 打开 AI 面板
+5. 输入问题，或直接截图/录音后发送
 
-Notchi builds upon the work of several open-source projects and draws inspiration from innovative macOS applications:
+## AI 之外的能力
 
-- [**Boring.Notch**](https://github.com/TheBoredTeam/boring.notch) - foundational codebase that provided the initial media player integration, AirDrop surface implementation, file dock functionality, and calendar event display. Major architectural patterns and notch interaction models were adapted from this project.
+notchi 依然保留完整的 Dynamic Island 生态能力：
 
-- [**Alcove**](https://tryalcove.com) - primary inspiration for the Minimalistic Mode interface design and the conceptual framework for lock screen widget integration that informed Notchi's compact layout strategy.
+- Live Activities：音乐、专注模式、隐私指示、下载、电池状态
+- 锁屏组件：音乐、计时器、电池、蓝牙、天气、提醒事项
+- 系统 HUD/OSD：音量、亮度、键盘背光增强提示
+- 常用工具：计时器、剪贴板、取色器、日历与提醒事项
+- 第三方扩展：Live Activities、锁屏组件、Notch 体验接入
 
-- [**Stats**](https://github.com/exelban/stats) - source implementation for CPU temperature monitoring via SMC (System Management Controller) access, frequency sampling through IOReport bindings, and per-core CPU utilisation tracking. The system metrics collection architecture derives from Stats project readers.
+## 预览
 
-- [**Open Meteo**](https://open-meteo.com) - weather apis for the lock screen widgets
+| 场景 | 预览 |
+| --- | --- |
+| Minimalistic | ![Minimalistic](.github/assets/Minimalistic-v1.2.gif) |
+| Lock Screen | ![Lock Screen](.github/assets/lockscreen-v1.2.gif) |
+| Focus / DND | ![DND](.github/assets/DND-v1.2.gif) |
 
-- [**SkyLightWindow**](https://github.com/Lakr233/SkyLightWindow) - window rendering for Lock Screen Widgets
+## 系统要求
 
-- Wick - Thanks Nate for allowing us to replicate the iOS like Timer design for the Lock Screen Widget
-## Contributors
+- macOS 14.0 及以上（推荐 macOS 15+）
+- 带刘海屏幕的 MacBook 设备
+- Xcode 15+（源码构建）
 
-<a href="https://github.com/Ebullioscopic/Atoll/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Ebullioscopic/Atoll" />
-</a>
+## 安装
 
-## Star History
+### 方式一：下载发布版本
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Ebullioscopic/Atoll&type=timeline&legend=top-left)](https://www.star-history.com/#Ebullioscopic/Atoll&type=timeline&legend=top-left)
+1. 打开 Releases：<https://github.com/Rosersn/Mac-Dynamic-Island/releases>
+2. 下载最新安装包
+3. 将应用拖入 `Applications`
 
-## Updating Existing Clones
-If you previously cloned DynamicIsland, update the remote to track the repository:
+### 方式二：源码构建
 
 ```bash
-git remote set-url origin https://github.com/Ebullioscopic/Atoll.git
+git clone https://github.com/Rosersn/Mac-Dynamic-Island.git
+cd Mac-Dynamic-Island
+open DynamicIsland.xcodeproj
 ```
 
-A heartfelt thanks to [TheBoredTeam](https://github.com/TheBoredTeam) for being supportive and being totally awesome, Notchi would not have been possible without Boring.Notch
+## 首次运行权限
+
+根据功能开关，应用可能请求：
+
+- 辅助功能（Accessibility）
+- 屏幕录制（截图与录屏相关能力）
+- 麦克风（语音录音输入）
+- 日历 / 提醒事项
+- 音乐媒体控制相关权限
+- 蓝牙（设备连接与电量状态）
+
+## 贡献
+
+- Bug 反馈：<https://github.com/Rosersn/Mac-Dynamic-Island/issues>
+- 代码贡献：Fork 后发起 Pull Request
+
+## 许可证
+
+本项目基于 GPL-3.0 协议发布，详见 `LICENSE`。
 
 ---
 
-<p align="center">
-  <img src=".github/assets/iosdevcentre.jpeg" alt="iOS Development Centre exterior" width="420">
-  <br>
-  <sub>Backed by</sub>
-  <br>
-  <strong>iOS Development Centre</strong>
-  <br>
-  Powered by Apple and Infosys
-  <br>
-  SRM Institute of Science and Technology, Chennai, India
-</p>
-
-<p align="center">
-  <a href="https://buymeacoffee.com/kryoscopic">
-    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200" />
-  </a>
-</p>
-
-<p align="center">
-  Your support helps fund teaching children software development.
-</p>
+由 Rose 制作

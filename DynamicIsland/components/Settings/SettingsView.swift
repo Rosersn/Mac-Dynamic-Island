@@ -2644,64 +2644,36 @@ struct About: View {
 
                 UpdaterSettingsView(updater: updaterController.updater)
 
-                HStack(spacing: 14) {
-                    Button {
-                        NSWorkspace.shared.open(sponsorPage)
-                    } label: {
-                        VStack(spacing: 5) {
-                            Image(systemName: "cup.and.saucer.fill")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(supportForeground)
-                            Text("Donate")
-                                .foregroundStyle(supportForeground)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(supportCardBackground)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(supportCardBorder, lineWidth: 1)
-                        )
-                        .contentShape(Rectangle())
+                Button {
+                    NSWorkspace.shared.open(productPage)
+                } label: {
+                    VStack(spacing: 5) {
+                        Image("Github")
+                            .renderingMode(.template)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 18)
+                            .foregroundStyle(supportForeground)
+                        Text("GitHub")
+                            .foregroundStyle(supportForeground)
                     }
-                    Button {
-                        NSWorkspace.shared.open(productPage)
-                    } label: {
-                        VStack(spacing: 5) {
-                            Image("Github")
-                                .renderingMode(.template)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 18)
-                                .foregroundStyle(supportForeground)
-                            Text("GitHub")
-                                .foregroundStyle(supportForeground)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .fill(supportCardBackground)
-                        )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(supportCardBorder, lineWidth: 1)
-                        )
-                        .contentShape(Rectangle())
-                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(supportCardBackground)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(supportCardBorder, lineWidth: 1)
+                    )
+                    .contentShape(Rectangle())
                 }
                 .buttonStyle(PlainButtonStyle())
-                Text("Your support funds software development learning for students in 9th–12th grade.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity, alignment: .center)
             }
             VStack(spacing: 0) {
                 Divider()
-                Text("Made with ❤️ by Ebullioscopic")
+                Text("由 Rose 制作")
                     .foregroundStyle(.secondary)
                     .padding(.top, 5)
                     .padding(.bottom, 7)

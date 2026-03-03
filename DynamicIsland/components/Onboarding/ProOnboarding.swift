@@ -58,22 +58,6 @@ struct ProOnboard: View {
                             .padding(.bottom, 30)
                     }
                     Button {
-                        if let url = URL(string: "https://www.linkedin.com/in/hariharan-mudaliar/") {
-                            NSWorkspace.shared.open(url)
-                        }
-                    } label: {
-                        Label("Buy us a coffee", systemImage: "cup.and.saucer.fill")
-                            .font(.headline)
-                            .foregroundColor(Color.black)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 10)
-                            .background(Color.yellow)
-                            .cornerRadius(8)
-                    }
-                    .buttonStyle(PlainButtonStyle())
-                    .padding(.bottom, 20)
-
-                    Button {
                         NSApp.keyWindow?.close()
                     } label: {
                         Text("Get started")

@@ -93,7 +93,7 @@ struct ExtensionsSettingsView: View {
             Text("Global Settings")
         } footer: {
             if Defaults[.enableThirdPartyExtensions] {
-                Text("Third-party apps using AtollExtensionKit can display live activities, lock screen widgets, and dedicated notch experiences. Toggle features above or manage individual app permissions below.")
+                Text("Third-party apps integrating with notchi can display live activities, lock screen widgets, and dedicated notch experiences. Toggle features above or manage individual app permissions below.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } else {
@@ -116,7 +116,7 @@ struct ExtensionsSettingsView: View {
                         .font(.headline)
                         .foregroundStyle(.secondary)
                     
-                    Text("Apps using AtollExtensionKit will appear here once they request permission")
+                    Text("Apps integrating with notchi will appear here once they request permission")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

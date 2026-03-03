@@ -425,22 +425,22 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DynamicIsland/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Atoll;
+				INFOPLIST_KEY_CFBundleDisplayName = notchi;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Atoll uses AppleScripts to control Spotify and Apple Music";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Atoll needs Bluetooth access to detect when audio devices connect and display their battery status in the HUD.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "notchi uses AppleScripts to control Spotify and Apple Music";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "notchi needs Bluetooth access to detect when audio devices connect and display their battery status in the HUD.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Show calender events inside the notch";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Need for Calendar Mode";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera for Mirror mode";
-				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Atoll needs access to save screenshots to your desktop.";
-				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "Atoll needs access to save and read AI assistant files.";
-				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "Atoll needs access to read files in the downloads folder.";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "notchi needs access to save screenshots to your desktop.";
+				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "notchi needs access to save and read AI assistant files.";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "notchi needs access to read files in the downloads folder.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSLocationUsageDescription = "Atoll uses your location to display accurate lock screen weather.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Atoll uses your location to display accurate lock screen weather.";
-				INFOPLIST_KEY_NSRemindersUsageDescription = "Atoll needs Reminders access to show your reminders";
+				INFOPLIST_KEY_NSLocationUsageDescription = "notchi uses your location to display accurate lock screen weather.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "notchi uses your location to display accurate lock screen weather.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "notchi needs Reminders access to show your reminders";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -496,22 +496,22 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = DynamicIsland/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Atoll;
+				INFOPLIST_KEY_CFBundleDisplayName = notchi;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_MetalCaptureEnabled = YES;
-				INFOPLIST_KEY_NSAppleEventsUsageDescription = "Atoll uses AppleScripts to control Spotify and Apple Music";
-				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "Atoll needs Bluetooth access to detect when audio devices connect and display their battery status in the HUD.";
+				INFOPLIST_KEY_NSAppleEventsUsageDescription = "notchi uses AppleScripts to control Spotify and Apple Music";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "notchi needs Bluetooth access to detect when audio devices connect and display their battery status in the HUD.";
 				INFOPLIST_KEY_NSCalendarsFullAccessUsageDescription = "Show calender events inside the notch";
 				INFOPLIST_KEY_NSCalendarsUsageDescription = "Need for Calendar Mode";
 				INFOPLIST_KEY_NSCameraUsageDescription = "We need your camera for Mirror mode";
-				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "Atoll needs access to save screenshots to your desktop.";
-				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "Atoll needs access to save and read AI assistant files.";
-				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "Atoll needs access to read files in the downloads folder.";
+				INFOPLIST_KEY_NSDesktopFolderUsageDescription = "notchi needs access to save screenshots to your desktop.";
+				INFOPLIST_KEY_NSDocumentsFolderUsageDescription = "notchi needs access to save and read AI assistant files.";
+				INFOPLIST_KEY_NSDownloadsFolderUsageDescription = "notchi needs access to read files in the downloads folder.";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INFOPLIST_KEY_NSLocationUsageDescription = "Atoll uses your location to display accurate lock screen weather.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Atoll uses your location to display accurate lock screen weather.";
-				INFOPLIST_KEY_NSRemindersUsageDescription = "Atoll needs Reminders access to show your reminders";
+				INFOPLIST_KEY_NSLocationUsageDescription = "notchi uses your location to display accurate lock screen weather.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "notchi uses your location to display accurate lock screen weather.";
+				INFOPLIST_KEY_NSRemindersUsageDescription = "notchi needs Reminders access to show your reminders";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
