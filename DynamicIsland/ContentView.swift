@@ -395,6 +395,8 @@ struct ContentView: View {
             maxHeight: dynamicNotchSize.height + currentShadowPadding,
             alignment: .top
         )
+        .animation(nil, value: dynamicNotchSize)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
         .environmentObject(privacyManager)
         .onChange(of: dynamicNotchSize) { oldSize, newSize in
             guard oldSize != newSize else { return }
@@ -758,9 +760,11 @@ struct ContentView: View {
                                 }
                           }
                       }
-                      .id(coordinator.currentView) // Force SwiftUI to treat each view as unique
+                      .id(coordinator.currentView)
+                      .transition(.blurReplace)
                   }
               }
+              .animation(.smooth(duration: 0.3), value: coordinator.currentView)
               .zIndex(1)
               .allowsHitTesting(vm.notchState == .open)
               .blur(radius: abs(gestureProgress) > 0.3 ? min(abs(gestureProgress), 8) : 0)

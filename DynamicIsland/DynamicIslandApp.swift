@@ -119,6 +119,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     // Debouncing mechanism for window size updates
     private var windowSizeUpdateWorkItem: DispatchWorkItem?
+    private var tabSwitchShrinkWorkItem: DispatchWorkItem?
 //    let calendarManager = CalendarManager.shared
 //    let webcamManager = WebcamManager.shared
 //    var closeNotchWorkItem: DispatchWorkItem?
@@ -148,8 +149,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
     
     func applicationWillTerminate(_ notification: Notification) {
-        // Cancel any pending window size updates
         windowSizeUpdateWorkItem?.cancel()
+        tabSwitchShrinkWorkItem?.cancel()
         NotificationCenter.default.removeObserver(self)
         extensionXPCServiceHost.stop()
     }
@@ -274,8 +275,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func updateWindowSizeForTabSwitch() {
+        tabSwitchShrinkWorkItem?.cancel()
+        tabSwitchShrinkWorkItem = nil
+        windowSizeUpdateWorkItem?.cancel()
+
         let requiredSize = calculateRequiredNotchSize()
-        resizeWindows(to: requiredSize, animated: false, force: true)
+
+        let currentHeight: CGFloat
+        if Defaults[.showOnAllDisplays] {
+            currentHeight = windows.values.first?.frame.height ?? requiredSize.height
+        } else {
+            currentHeight = window?.frame.height ?? requiredSize.height
+        }
+
+        if requiredSize.height >= currentHeight {
+            resizeWindows(to: requiredSize, animated: false, force: true)
+        } else {
+            let workItem = DispatchWorkItem { [weak self] in
+                guard let self else { return }
+                let finalSize = self.calculateRequiredNotchSize()
+                self.resizeWindows(to: finalSize, animated: false, force: false)
+            }
+            tabSwitchShrinkWorkItem = workItem
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: workItem)
+        }
     }
     
     private func calculateRequiredNotchSize() -> CGSize {
@@ -347,7 +370,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let newY = screenFrame.origin.y + screenFrame.height - size.height
         let targetFrame = NSRect(x: newX, y: newY, width: size.width, height: size.height)
 
-        window.setFrame(targetFrame, display: true)
+        if animated {
+            NSAnimationContext.runAnimationGroup { context in
+                context.duration = 0.3
+                context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+                context.allowsImplicitAnimation = true
+                window.animator().setFrame(targetFrame, display: true)
+            }
+        } else {
+            window.setFrame(targetFrame, display: true)
+        }
     }
 
     private func shouldAnimateResize(for newSize: CGSize) -> Bool {
