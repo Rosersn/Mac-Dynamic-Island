@@ -297,7 +297,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self.resizeWindows(to: finalSize, animated: false, force: false)
             }
             tabSwitchShrinkWorkItem = workItem
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: workItem)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: workItem)
         }
     }
     

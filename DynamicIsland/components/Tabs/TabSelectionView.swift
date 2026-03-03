@@ -64,6 +64,8 @@ struct TabSelectionView: View {
     @State private var tabSwitchAutoCloseSuppressed = false
     @State private var scrollGestureSuppressionToken = UUID()
     @State private var isSuppressingScrollGestures = false
+    @State private var pendingTabScrollWorkItem: DispatchWorkItem?
+    @State private var lastScrolledTabID: String?
     
     private var tabs: [TabModel] {
         var tabsArray: [TabModel] = []
@@ -154,19 +156,19 @@ struct TabSelectionView: View {
                     }
                 }
             }
-            .animation(.smooth(duration: 0.3), value: coordinator.currentView)
             .clipped()
             .onAppear {
-                scrollToCurrentSelection(using: proxy, animated: false)
+                scrollToCurrentSelection(using: proxy, tabsSnapshot: currentTabs, animated: false, force: true)
             }
             .onChange(of: coordinator.currentView) { _, _ in
-                scrollToCurrentSelection(using: proxy)
+                scrollToCurrentSelection(using: proxy, tabsSnapshot: currentTabs)
             }
             .onChange(of: coordinator.selectedExtensionExperienceID) { _, _ in
-                scrollToCurrentSelection(using: proxy)
+                scrollToCurrentSelection(using: proxy, tabsSnapshot: currentTabs)
             }
             .onChange(of: currentTabs.map(\.id)) { _, _ in
-                scrollToCurrentSelection(using: proxy, animated: false)
+                lastScrolledTabID = nil
+                scrollToCurrentSelection(using: proxy, tabsSnapshot: currentTabs, animated: false, force: true)
             }
         }
         .clipShape(Capsule())
@@ -174,6 +176,8 @@ struct TabSelectionView: View {
             updateScrollGestureSuppression(for: hovering)
         }
         .onDisappear {
+            pendingTabScrollWorkItem?.cancel()
+            pendingTabScrollWorkItem = nil
             updateScrollGestureSuppression(for: false)
             releaseTabSwitchAutoCloseSuppression()
         }
@@ -229,7 +233,7 @@ struct TabSelectionView: View {
             releaseTabSwitchAutoCloseSuppression()
         }
         tabSwitchAutoCloseReleaseWorkItem = releaseWorkItem
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: releaseWorkItem)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: releaseWorkItem)
     }
 
     private func releaseTabSwitchAutoCloseSuppression() {
@@ -252,19 +256,49 @@ struct TabSelectionView: View {
         }
     }
 
-    private func scrollToCurrentSelection(using proxy: ScrollViewProxy, animated: Bool = true) {
-        guard let selectedTab = tabs.first(where: isSelected) else { return }
+    private func scrollToCurrentSelection(
+        using proxy: ScrollViewProxy,
+        tabsSnapshot: [TabModel],
+        animated: Bool = true,
+        force: Bool = false
+    ) {
+        guard let selectedTab = tabsSnapshot.first(where: isSelected) else { return }
         let targetID = selectedTab.id
 
-        DispatchQueue.main.async {
-            if animated {
-                withAnimation(.easeOut(duration: 0.2)) {
-                    proxy.scrollTo(targetID, anchor: .center)
-                }
-            } else {
-                proxy.scrollTo(targetID, anchor: .center)
+        if !force && targetID == lastScrolledTabID {
+            return
+        }
+
+        pendingTabScrollWorkItem?.cancel()
+
+        var scrollID = targetID
+        let anchor: UnitPoint? = force ? .center : nil
+
+        if !force,
+           let newIdx = tabsSnapshot.firstIndex(where: { $0.id == targetID }),
+           let lastID = lastScrolledTabID,
+           let lastIdx = tabsSnapshot.firstIndex(where: { $0.id == lastID })
+        {
+            if newIdx > lastIdx, newIdx + 1 < tabsSnapshot.count {
+                scrollID = tabsSnapshot[newIdx + 1].id
+            } else if newIdx < lastIdx, newIdx - 1 >= 0 {
+                scrollID = tabsSnapshot[newIdx - 1].id
             }
         }
+
+        let workItem = DispatchWorkItem {
+            if animated {
+                withAnimation(.interactiveSpring(response: 0.32, dampingFraction: 0.86, blendDuration: 0.1)) {
+                    proxy.scrollTo(scrollID, anchor: anchor)
+                }
+            } else {
+                proxy.scrollTo(scrollID, anchor: anchor)
+            }
+            lastScrolledTabID = targetID
+        }
+        pendingTabScrollWorkItem = workItem
+        let delay: TimeInterval = animated ? 0.02 : 0
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay, execute: workItem)
     }
 
     private func updateScrollGestureSuppression(for active: Bool) {
