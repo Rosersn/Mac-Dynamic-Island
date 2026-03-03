@@ -108,6 +108,19 @@ struct BatteryMenuView: View {
     var onDismiss: () -> Void
 
     @Environment(\.openURL) private var openURL
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var primaryTextColor: Color {
+        colorScheme == .light ? Color.black.opacity(0.8) : Color.white.opacity(0.92)
+    }
+
+    private var secondaryTextColor: Color {
+        colorScheme == .light ? Color.black.opacity(0.62) : Color.white.opacity(0.72)
+    }
+
+    private var dividerColor: Color {
+        colorScheme == .light ? Color.black.opacity(0.12) : Color.white.opacity(0.2)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -121,6 +134,7 @@ struct BatteryMenuView: View {
                     .font(.headline)
                     .fontWeight(.semibold)
             }
+            .foregroundStyle(primaryTextColor)
             
             VStack(alignment: .leading, spacing: 8) {
                 Text("Max Capacity: \(Int(maxCapacity))%")
@@ -154,12 +168,15 @@ struct BatteryMenuView: View {
                     
             }
             .padding(.vertical, 8)
+            .foregroundStyle(secondaryTextColor)
 
-            Divider().background(Color.white)
+            Divider()
+                .overlay(dividerColor)
 
             Button(action: openBatteryPreferences) {
                 Label("Battery Settings", systemImage: "gearshape")
                     .fontWeight(.regular)
+                    .foregroundStyle(primaryTextColor)
             }
             .frame(maxWidth: .infinity)
             .buttonStyle(.plain)
@@ -167,7 +184,6 @@ struct BatteryMenuView: View {
         }
         .padding()
         .frame(width: 280)
-        .foregroundColor(.white)
     }
 
     private func openBatteryPreferences() {
