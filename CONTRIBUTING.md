@@ -42,8 +42,8 @@ We are committed to fostering a welcoming and inclusive environment. Please read
 	- MacBook with a notch (for full feature testing)
 - **Clone the repo:**
 	```bash
-	git clone https://github.com/Ebullioscopic/Atoll.git
-	cd Atoll
+	git clone https://github.com/Rosersn/Mac-Dynamic-Island.git
+	cd Mac-Dynamic-Island
 	open DynamicIsland.xcodeproj
 	```
 - **Build & Run:**
@@ -89,7 +89,7 @@ We are committed to fostering a welcoming and inclusive environment. Please read
 
 ## Community & Support
 
-- Join our [Discord community](https://discord.gg/zvjB4tJBkt) for discussion, support, and collaboration.
+- 问题反馈与讨论：[GitHub Issues](https://github.com/Rosersn/Mac-Dynamic-Island/issues)
 - Be respectful and constructive in all interactions.
 
 ---

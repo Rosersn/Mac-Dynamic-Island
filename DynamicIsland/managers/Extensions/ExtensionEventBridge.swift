@@ -27,7 +27,7 @@ final class ExtensionEventBridge {
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
     private let processIdentifier = ProcessInfo.processInfo.processIdentifier
-    private let ioQueue = DispatchQueue(label: "com.ebullioscopic.Notchi.extensions.bridge", qos: .utility)
+    private let ioQueue = DispatchQueue(label: "com.notchi.extensions.bridge", qos: .utility)
 
     private init() {}
 
@@ -157,11 +157,11 @@ final class ExtensionEventBridge {
         var notificationName: Notification.Name {
             switch self {
             case .liveActivities:
-                return Notification.Name("com.ebullioscopic.Notchi.extensions.liveActivitySnapshot")
+                return Notification.Name("com.notchi.extensions.liveActivitySnapshot")
             case .lockScreenWidgets:
-                return Notification.Name("com.ebullioscopic.Notchi.extensions.lockScreenWidgetSnapshot")
+                return Notification.Name("com.notchi.extensions.lockScreenWidgetSnapshot")
             case .notchExperiences:
-                return Notification.Name("com.ebullioscopic.Notchi.extensions.notchExperienceSnapshot")
+                return Notification.Name("com.notchi.extensions.notchExperienceSnapshot")
             }
         }
 

@@ -53,7 +53,7 @@ enum LogCategory: String {
 }
 
 struct Logger {
-    private static let subsystem = "com.ebullioscopic.Notchi"
+    private static let subsystem = "com.notchi"
     private static let dateFormatter: ISO8601DateFormatter = {
         let formatter = ISO8601DateFormatter()
         formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]

@@ -22,7 +22,7 @@ import AtollExtensionKit
 
 /// Shared constants for the Notchi extension XPC service.
 enum ExtensionXPCServiceConstants {
-    static let machServiceName = "com.ebullioscopic.Notchi.xpc"
+    static let machServiceName = "com.notchi.xpc"
 }
 
 @MainActor

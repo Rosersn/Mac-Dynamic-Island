@@ -47,7 +47,7 @@ final class ReminderLiveActivityManager: ObservableObject {
     @Published private(set) var activeWindowReminders: [ReminderEntry] = []
     @Published private(set) var lockScreenSnapshot: LockScreenReminderWidgetSnapshot?
 
-    private let logger: os.Logger = os.Logger(subsystem: "com.ebullioscopic.Notchi", category: "ReminderLiveActivity")
+    private let logger: os.Logger = os.Logger(subsystem: "com.notchi", category: "ReminderLiveActivity")
 
     private var nextReminder: ReminderEntry?
     private var cancellables = Set<AnyCancellable>()
