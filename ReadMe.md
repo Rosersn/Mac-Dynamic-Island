@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="DynamicIsland/Assets.xcassets/logo.imageset/Notchi.png" alt="notchi logo" width="120" />
+  <img src="DynamicIsland/Assets.xcassets/logo.imageset/Notchi.png" alt="Notchi logo" width="120" />
 </p>
 
-<h1 align="center">notchi · AI 优先的 macOS Dynamic Island</h1>
+<h1 align="center">Notchi · AI 优先的 macOS Dynamic Island</h1>
 
 <p align="center">
   先是 AI 助手，再是系统信息中枢。让刘海从“显示区”变成“操作区”。
@@ -18,7 +18,7 @@
 
 ## 核心定位
 
-notchi 的核心不是把 iPhone 的 Dynamic Island 复刻到 Mac，而是把它做成一个随时可唤起的 AI 工作入口。  
+Notchi 的核心不是把 iPhone 的 Dynamic Island 复刻到 Mac，而是把它做成一个随时可唤起的 AI 工作入口。  
 你可以在刘海里直接和模型对话，也可以用悬浮面板快速完成高频任务。
 
 ## Notchi AI（Muse）能力
@@ -72,7 +72,7 @@ notchi 的核心不是把 iPhone 的 Dynamic Island 复刻到 Mac，而是把它
 
 ## AI 之外的能力
 
-notchi 依然保留完整的 Dynamic Island 生态能力：
+Notchi 依然保留完整的 Dynamic Island 生态能力：
 
 - Live Activities：音乐、专注模式、隐私指示、下载、电池状态
 - 锁屏组件：音乐、计时器、电池、蓝牙、天气、提醒事项

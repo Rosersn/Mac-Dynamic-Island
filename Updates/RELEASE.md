@@ -1,6 +1,6 @@
-# notchi 版本发布指南
+# Notchi 版本发布指南
 
-本文档记录通过 Sparkle 框架发布 notchi 更新的完整流程。
+本文档记录通过 Sparkle 框架发布 Notchi 更新的完整流程。
 
 ## 一键发版（推荐）
 
@@ -171,4 +171,4 @@ curl -s https://raw.githubusercontent.com/Rosersn/Mac-Dynamic-Island/main/Update
 
 | 版本 | sparkle:version | 发布日期 | 备注 |
 |---|---|---|---|
-| 1.3.0-beta | 4 | 2026-01-31 | 首个 notchi 品牌版本，新 EdDSA 密钥 |
+| 1.3.0-beta | 4 | 2026-01-31 | 首个 Notchi 品牌版本，新 EdDSA 密钥 |
