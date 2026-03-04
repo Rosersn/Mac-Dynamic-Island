@@ -64,14 +64,24 @@ hdiutil create \
   -volname "Notchi" \
   -srcfolder /tmp/notchi-release/Build/Products/Release/Notchi.app \
   -ov -format UDZO \
-  Notchi.<版本号>.dmg
+  /tmp/Notchi.<版本号>.dmg
 ```
 
-### 4. 签名 DMG
+### 4. 复制 DMG 到项目目录
 
 ```bash
-~/Library/Developer/Xcode/DerivedData/DynamicIsland-*/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update Notchi.<版本号>.dmg
+cp /tmp/Notchi.<版本号>.dmg Updates/Notchi.<版本号>.dmg
 ```
+
+### 5. 签名 DMG
+
+```bash
+~/Library/Developer/Xcode/DerivedData/DynamicIsland-*/SourcePackages/artifacts/sparkle/Sparkle/bin/sign_update Updates/Notchi.<版本号>.dmg
+```
+
+```
+
+签名工具会直接读取 Keychain 中的私钥，无需额外指定。
 
 输出示例：
 
@@ -81,7 +91,7 @@ sparkle:edSignature="CU5mJgb0rO2H..." length="5480837"
 
 记录 `edSignature` 和 `length` 的值。
 
-### 5. 更新 appcast.xml
+### 6. 更新 appcast.xml
 
 在 `Updates/appcast.xml` 的 `<channel>` 内最顶部添加新 `<item>`：
 
@@ -113,7 +123,7 @@ sparkle:edSignature="CU5mJgb0rO2H..." length="5480837"
 | `length` | DMG 文件大小（字节） |
 | `sparkle:edSignature` | EdDSA 签名，由 `sign_update` 生成 |
 
-### 6. 上传到 GitHub
+### 7. 上传到 GitHub
 
 1. 提交并推送代码（包括 `appcast.xml` 的更新）
 2. 在 GitHub 仓库创建新 Release，tag 格式为 `v<版本号>`（如 `v1.4.0`）

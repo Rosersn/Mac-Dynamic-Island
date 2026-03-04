@@ -8,7 +8,7 @@
             <sparkle:version>5</sparkle:version>
             <sparkle:shortVersionString>1.4.0-beta</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.6</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/Rosersn/Mac-Dynamic-Island/releases/download/v1.4.0-beta/Notchi.1.4.0-beta.dmg" length="19738058" type="application/octet-stream" sparkle:edSignature="LwWYACzeyOmtkT0CFNTtGj2aC3/uT4Rj85Ld9tauxXq82oe1HxFkI8+MkMmB3J0fZIu0iBYDRnt4xkWPkka6DA=="/>
+            <enclosure url="https://github.com/Rosersn/Mac-Dynamic-Island/releases/download/v1.4.0-beta/Notchi.1.4.0-beta.dmg" length="19738076" type="application/octet-stream" sparkle:edSignature="5KxKkhv43Vq3t0t76Kgq0vd7RiE7AVdeghr+pb03LXDxmG3DvVfvz0x6+rui1cgb/BCGBhOyzPASSr675KxQDA=="/>
         </item>
     </channel>
 </rss>
