@@ -446,7 +446,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				MARKETING_VERSION = "1.3.0-beta";
+				MARKETING_VERSION = "1.6.0";
 				PRODUCT_BUNDLE_IDENTIFIER = com.notchi.app.dev;
 				PRODUCT_NAME = Notchi;
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -517,7 +517,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.6;
-				MARKETING_VERSION = "1.3.0-beta";
+				MARKETING_VERSION = "1.6.0";
 				PRODUCT_BUNDLE_IDENTIFIER = com.notchi.app;
 				PRODUCT_NAME = Notchi;
 				PROVISIONING_PROFILE_SPECIFIER = "";

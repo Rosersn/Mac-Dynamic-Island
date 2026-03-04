@@ -3,12 +3,12 @@
     <channel>
         <title>Notchi</title>
         <item>
-            <title>1.5.0</title>
-            <pubDate>Wed, 04 Mar 2026 12:00:00 +0800</pubDate>
-            <sparkle:version>5</sparkle:version>
-            <sparkle:shortVersionString>1.5.0</sparkle:shortVersionString>
+            <title>1.6.0</title>
+            <pubDate>Wed, 04 Mar 2026 11:37:16 +0800</pubDate>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>1.6.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>14.6</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/Rosersn/Mac-Dynamic-Island/releases/download/v1.5.0/Notchi.1.5.0.dmg" length="19738076" type="application/octet-stream" sparkle:edSignature="5KxKkhv43Vq3t0t76Kgq0vd7RiE7AVdeghr+pb03LXDxmG3DvVfvz0x6+rui1cgb/BCGBhOyzPASSr675KxQDA=="/>
+            <enclosure url="https://github.com/Rosersn/Mac-Dynamic-Island/releases/download/v1.6.0/Notchi.1.6.0.dmg" length="19735561" type="application/octet-stream" sparkle:edSignature="g0tKq6EaXXtaqlKHma7hoomivI32atL8/3jGdpyDmtk0cZ/n5/9JJdU/qloC54uExb+pwLLn6/zvlcT1mAZuAA=="/>
         </item>
     </channel>
 </rss>

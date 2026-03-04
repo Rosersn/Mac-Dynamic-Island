@@ -2,6 +2,24 @@
 
 本文档记录通过 Sparkle 框架发布 notchi 更新的完整流程。
 
+## 一键发版（推荐）
+
+```bash
+# 基本用法
+./scripts/release.sh 1.5.1
+
+# 带版本代号
+./scripts/release.sh 1.5.1 "Maldives"
+```
+
+脚本会自动完成：更新版本号 → 构建 Release → 打包 DMG → 签名 → 更新 appcast.xml。
+
+完成后按提示执行 git 提交和 GitHub Release 上传即可。
+
+## 手动发版
+
+以下是手动执行每个步骤的详细说明。
+
 ## 前置条件
 
 - macOS Keychain 中已存有 Sparkle EdDSA 私钥（首次由 `generate_keys` 生成）
